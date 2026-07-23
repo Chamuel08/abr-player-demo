@@ -40,6 +40,14 @@ struct ContentView: View {
 
                 Spacer()
 
+                Picker("策略", selection: $controller.strategy) {
+                    ForEach(ABRPlayerController.ABRStrategy.allCases) { s in
+                        Text(s.rawValue).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 120)
+
                 Toggle("模拟弱网", isOn: $controller.simulateWeakNetwork)
                     .toggleStyle(SwitchToggleStyle(tint: .red))
                     .font(.caption)

@@ -23,6 +23,10 @@ struct QoSMetrics: Equatable {
     var stallCount: Int = 0
     /// 当前档位，BBA 选择的 variant
     var currentVariant: HLSVariant?
+    /// EWMA 预测吞吐（bps），MPC 策略下由 MPCController 提供
+    var estimatedThroughput: Double = 0
+    /// MPC 累计代价 J，仅 MPC 策略有意义
+    var cumulativeCost: Double = 0
 
     /// 格式化字符串，供 UI 显示
     var currentBitrateString: String {
@@ -39,5 +43,11 @@ struct QoSMetrics: Equatable {
     }
     var currentVariantString: String {
         currentVariant?.kbpsString ?? "--"
+    }
+    var estimatedThroughputString: String {
+        estimatedThroughput > 0 ? String(format: "%.0f kbps", estimatedThroughput / 1000.0) : "--"
+    }
+    var cumulativeCostString: String {
+        String(format: "%.0f", cumulativeCost)
     }
 }

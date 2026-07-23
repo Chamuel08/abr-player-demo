@@ -26,7 +26,21 @@ final class ABRPlayerController: ObservableObject {
     /// 模拟弱网开关
     @Published var simulateWeakNetwork = false {
         didSet {
-            bbaController?.simulateWeakNetwork = simulateWeakNetwork
+            abr?.simulateWeakNetwork = simulateWeakNetwork
+        }
+    }
+
+    /// ABR 策略
+    enum ABRStrategy: String, CaseIterable, Identifiable {
+        case bba = "BBA"
+        case mpc = "MPC"
+        var id: String { rawValue }
+    }
+    /// 当前策略，切换时重建控制器
+    @Published var strategy: ABRStrategy = .bba {
+        didSet {
+            guard strategy != oldValue else { return }
+            rebuildABR()
         }
     }
 
@@ -36,6 +50,10 @@ final class ABRPlayerController: ObservableObject {
     /// 测试钩子：通过环境变量 ABR_WEAK_NETWORK=1 启动可默认开启弱网模式（用于自动化验证降档）
     private static var weakNetworkFromEnv: Bool {
         ProcessInfo.processInfo.environment["ABR_WEAK_NETWORK"] == "1"
+    }
+    /// 测试钩子：通过环境变量 ABR_STRATEGY=mpc 启动可默认选 MPC（用于自动化验证）
+    private static var strategyFromEnv: ABRStrategy {
+        ProcessInfo.processInfo.environment["ABR_STRATEGY"]?.lowercased() == "mpc" ? .mpc : .bba
     }
 
     // MARK: - AVPlayer
@@ -47,8 +65,10 @@ final class ABRPlayerController: ObservableObject {
 
     // MARK: - 子模块
 
-    private var bbaController: BBAController?
+    private var abr: ABRController?
     private var qosObservers: QoSObservers?
+    /// 已解析的档位，切换策略时复用
+    private var parsedVariants: [HLSVariant]?
 
     // MARK: - Init
 
@@ -61,20 +81,22 @@ final class ABRPlayerController: ObservableObject {
         if Self.weakNetworkFromEnv {
             self.simulateWeakNetwork = true
         }
+        // 测试钩子：环境变量可默认选策略
+        self.strategy = Self.strategyFromEnv
         // 关闭 AVPlayer 默认 ABR 的部分行为：通过 preferredPeakBitRate 控制
         // 但默认还是要让它先播放，BBA 接管后再限制
     }
 
     deinit {
         qosObservers?.stopObserving()
-        bbaController?.stop()
+        abr?.stop()
         player.pause()
         NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - 播放控制
 
-    /// 开始播放并启动 BBA + QoS 监控
+    /// 开始播放并启动 ABR + QoS 监控
     func play() {
         guard !isPlaying else { return }
         isPlaying = true
@@ -82,10 +104,10 @@ final class ABRPlayerController: ObservableObject {
         qosObservers?.markPlayStart()
         player.play()
 
-        // 异步加载档位并启动 BBA
+        // 异步加载档位并启动 ABR
         Task { [weak self] in
             guard let self = self else { return }
-            await self.setupBBA()
+            await self.setupABR()
         }
     }
 
@@ -99,56 +121,78 @@ final class ABRPlayerController: ObservableObject {
         player.seek(to: time)
     }
 
-    // MARK: - BBA 初始化
+    // MARK: - ABR 初始化
 
     @MainActor
-    private func setupBBA() async {
+    private func setupABR() async {
         guard let asset = playerItem.asset as? AVURLAsset else { return }
         do {
             let variants = try await HLSVariantParser.parse(from: asset)
             await MainActor.run {
-                self.bbaController = BBAController(player: self.player, variants: variants)
-                // 同步弱网开关状态（init 时 didSet 可能因 bbaController 尚未创建而失效）
-                self.bbaController?.simulateWeakNetwork = self.simulateWeakNetwork
-                self.bbaController?.onSwitch = { [weak self] log in
-                    guard let self = self else { return }
-                    // 追加日志，保留最近 10 条
-                    self.switchLogs.append(log)
-                    if self.switchLogs.count > 10 {
-                        self.switchLogs.removeFirst(self.switchLogs.count - 10)
-                    }
-                    // 同步切档次数到 metrics
-                    self.metrics.switchCount = self.bbaController?.switchCount ?? 0
-                    self.metrics.currentVariant = variants.first(where: {
-                        $0.peakBitRate == self.bbaController?.currentTarget
-                    })
-                }
-                self.bbaController?.start()
+                self.parsedVariants = variants
+                self.installABR(variants: variants)
                 self.variantsReady = true
-                // 启动 QoS 观察器
-                self.qosObservers = QoSObservers(player: self.player, playStartTimestamp: self.playStartTime)
-                self.qosObservers?.onMetricsUpdate = { [weak self] newMetrics in
-                    guard let self = self else { return }
-                    // 保留 BBAController 的切档次数和当前档位
-                    var merged = newMetrics
-                    merged.switchCount = self.bbaController?.switchCount ?? 0
-                    if let target = self.bbaController?.currentTarget {
-                        merged.currentVariant = variants.first(where: { $0.peakBitRate == target })
-                    }
-                    self.metrics = merged
-                }
-                self.qosObservers?.startObserving()
+                self.startQoSObservers(variants: variants)
             }
         } catch {
-            print("[BBA] 档位解析失败: \(error.localizedDescription)")
-            // 降级：仍启动 QoS 观察器，不启动 BBA
+            print("[ABR] 档位解析失败: \(error.localizedDescription)")
+            // 降级：仍启动 QoS 观察器，不启动 ABR
             await MainActor.run {
-                self.qosObservers = QoSObservers(player: self.player, playStartTimestamp: self.playStartTime)
-                self.qosObservers?.onMetricsUpdate = { [weak self] newMetrics in
-                    self?.metrics = newMetrics
-                }
-                self.qosObservers?.startObserving()
+                self.startQoSObservers(variants: [])
             }
         }
+    }
+
+    /// 切换策略时重建控制器（不中断播放，复用已解析档位）
+    private func rebuildABR() {
+        guard isPlaying, let variants = parsedVariants else { return }
+        abr?.stop()
+        // 切换策略时清空切档日志与计数，便于对比
+        switchLogs.removeAll()
+        installABR(variants: variants)
+    }
+
+    /// 根据 strategy 构造并安装 ABR 控制器
+    private func installABR(variants: [HLSVariant]) {
+        let controller: ABRController
+        switch strategy {
+        case .bba:
+            controller = BBAController(player: player, variants: variants)
+        case .mpc:
+            controller = MPCController(player: player, variants: variants)
+        }
+        controller.simulateWeakNetwork = simulateWeakNetwork
+        controller.onSwitch = { [weak self] log in
+            guard let self = self else { return }
+            self.switchLogs.append(log)
+            if self.switchLogs.count > 10 {
+                self.switchLogs.removeFirst(self.switchLogs.count - 10)
+            }
+        }
+        controller.start()
+        abr = controller
+    }
+
+    /// 启动 QoS 观察器，并把 ABR 状态合并进 metrics
+    private func startQoSObservers(variants: [HLSVariant]) {
+        qosObservers = QoSObservers(player: player, playStartTimestamp: playStartTime)
+        qosObservers?.onMetricsUpdate = { [weak self] newMetrics in
+            guard let self = self else { return }
+            var merged = newMetrics
+            merged.switchCount = self.abr?.switchCount ?? 0
+            if let target = self.abr?.currentTarget {
+                merged.currentVariant = variants.first(where: { $0.peakBitRate == target })
+            }
+            // MPC 专属指标
+            if let mpc = self.abr as? MPCController {
+                merged.estimatedThroughput = mpc.estimatedThroughput
+                merged.cumulativeCost = mpc.cumulativeCost
+            } else {
+                merged.estimatedThroughput = 0
+                merged.cumulativeCost = 0
+            }
+            self.metrics = merged
+        }
+        qosObservers?.startObserving()
     }
 }

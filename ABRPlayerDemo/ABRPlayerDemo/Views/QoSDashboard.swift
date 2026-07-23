@@ -25,11 +25,13 @@ struct QoSDashboard: View {
             LazyVGrid(columns: columns, spacing: 8) {
                 metricCell(title: "当前码率", value: metrics.currentBitrateString)
                 metricCell(title: "观测吞吐", value: metrics.observedBitrateString)
+                metricCell(title: "预测吞吐", value: metrics.estimatedThroughputString)
                 metricCell(title: "Buffer 水位", value: metrics.bufferString)
                 metricCell(title: "首帧耗时", value: metrics.firstFrameString)
                 metricCell(title: "切档次数", value: "\(metrics.switchCount) 次")
                 metricCell(title: "卡顿次数", value: "\(metrics.stallCount) 次")
                 metricCell(title: "当前档位", value: metrics.currentVariantString)
+                metricCell(title: "累计代价 J", value: metrics.cumulativeCostString)
             }
         }
         .padding(12)

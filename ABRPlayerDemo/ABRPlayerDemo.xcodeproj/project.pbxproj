@@ -9,15 +9,18 @@
 		000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* ABRPlayerDemoApp.swift */; };
 		000000000000000000000004 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* ContentView.swift */; };
 		000000000000000000000006 /* ABR/ABRPlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* ABR/ABRPlayerController.swift */; };
-		000000000000000000000008 /* ABR/BBAController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* ABR/BBAController.swift */; };
-		00000000000000000000000a /* ABR/HLSVariantParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* ABR/HLSVariantParser.swift */; };
-		00000000000000000000000c /* ABR/QoSObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000b /* ABR/QoSObservers.swift */; };
-		00000000000000000000000e /* Models/HLSVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000d /* Models/HLSVariant.swift */; };
-		000000000000000000000010 /* Models/QoSMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000f /* Models/QoSMetrics.swift */; };
-		000000000000000000000012 /* Models/SwitchLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* Models/SwitchLog.swift */; };
-		000000000000000000000014 /* Views/PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Views/PlayerView.swift */; };
-		000000000000000000000016 /* Views/QoSDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Views/QoSDashboard.swift */; };
-		000000000000000000000018 /* Views/SwitchLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Views/SwitchLogView.swift */; };
+		000000000000000000000008 /* ABR/ABRController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* ABR/ABRController.swift */; };
+		00000000000000000000000a /* ABR/BBAController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* ABR/BBAController.swift */; };
+		00000000000000000000000c /* ABR/HLSVariantParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000b /* ABR/HLSVariantParser.swift */; };
+		00000000000000000000000e /* ABR/MPCController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000d /* ABR/MPCController.swift */; };
+		000000000000000000000010 /* ABR/QoSObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000f /* ABR/QoSObservers.swift */; };
+		000000000000000000000012 /* ABR/ThroughputEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* ABR/ThroughputEstimator.swift */; };
+		000000000000000000000014 /* Models/HLSVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Models/HLSVariant.swift */; };
+		000000000000000000000016 /* Models/QoSMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Models/QoSMetrics.swift */; };
+		000000000000000000000018 /* Models/SwitchLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Models/SwitchLog.swift */; };
+		00000000000000000000001a /* Views/PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* Views/PlayerView.swift */; };
+		00000000000000000000001c /* Views/QoSDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001b /* Views/QoSDashboard.swift */; };
+		00000000000000000000001e /* Views/SwitchLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001d /* Views/SwitchLogView.swift */; };
 		000000000000000000000075 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000073 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -25,15 +28,18 @@
 		000000000000000000000001 /* ABRPlayerDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerDemoApp.swift'; sourceTree = "<group>"; };
 		000000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ContentView.swift'; sourceTree = "<group>"; };
 		000000000000000000000005 /* ABR/ABRPlayerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerController.swift'; sourceTree = "<group>"; };
-		000000000000000000000007 /* ABR/BBAController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'BBAController.swift'; sourceTree = "<group>"; };
-		000000000000000000000009 /* ABR/HLSVariantParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariantParser.swift'; sourceTree = "<group>"; };
-		00000000000000000000000b /* ABR/QoSObservers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSObservers.swift'; sourceTree = "<group>"; };
-		00000000000000000000000d /* Models/HLSVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariant.swift'; sourceTree = "<group>"; };
-		00000000000000000000000f /* Models/QoSMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSMetrics.swift'; sourceTree = "<group>"; };
-		000000000000000000000011 /* Models/SwitchLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLog.swift'; sourceTree = "<group>"; };
-		000000000000000000000013 /* Views/PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerView.swift'; sourceTree = "<group>"; };
-		000000000000000000000015 /* Views/QoSDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSDashboard.swift'; sourceTree = "<group>"; };
-		000000000000000000000017 /* Views/SwitchLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLogView.swift'; sourceTree = "<group>"; };
+		000000000000000000000007 /* ABR/ABRController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRController.swift'; sourceTree = "<group>"; };
+		000000000000000000000009 /* ABR/BBAController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'BBAController.swift'; sourceTree = "<group>"; };
+		00000000000000000000000b /* ABR/HLSVariantParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariantParser.swift'; sourceTree = "<group>"; };
+		00000000000000000000000d /* ABR/MPCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'MPCController.swift'; sourceTree = "<group>"; };
+		00000000000000000000000f /* ABR/QoSObservers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSObservers.swift'; sourceTree = "<group>"; };
+		000000000000000000000011 /* ABR/ThroughputEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ThroughputEstimator.swift'; sourceTree = "<group>"; };
+		000000000000000000000013 /* Models/HLSVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariant.swift'; sourceTree = "<group>"; };
+		000000000000000000000015 /* Models/QoSMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSMetrics.swift'; sourceTree = "<group>"; };
+		000000000000000000000017 /* Models/SwitchLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLog.swift'; sourceTree = "<group>"; };
+		000000000000000000000019 /* Views/PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerView.swift'; sourceTree = "<group>"; };
+		00000000000000000000001b /* Views/QoSDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSDashboard.swift'; sourceTree = "<group>"; };
+		00000000000000000000001d /* Views/SwitchLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLogView.swift'; sourceTree = "<group>"; };
 		000000000000000000000073 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		000000000000000000000074 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		000000000000000000000078 /* ABRPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ABRPlayerDemo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -46,19 +52,22 @@
 /* Begin PBXGroup section */
 		000000000000000000000070 /* ABR */ = {isa = PBXGroup; children = (
 			000000000000000000000005 /* ABRPlayerController.swift */,
-			000000000000000000000007 /* BBAController.swift */,
-			000000000000000000000009 /* HLSVariantParser.swift */,
-			00000000000000000000000b /* QoSObservers.swift */,
+			000000000000000000000007 /* ABRController.swift */,
+			000000000000000000000009 /* BBAController.swift */,
+			00000000000000000000000b /* HLSVariantParser.swift */,
+			00000000000000000000000d /* MPCController.swift */,
+			00000000000000000000000f /* QoSObservers.swift */,
+			000000000000000000000011 /* ThroughputEstimator.swift */,
 		); path = "ABR"; sourceTree = "<group>"; };
 		000000000000000000000071 /* Models */ = {isa = PBXGroup; children = (
-			00000000000000000000000d /* HLSVariant.swift */,
-			00000000000000000000000f /* QoSMetrics.swift */,
-			000000000000000000000011 /* SwitchLog.swift */,
+			000000000000000000000013 /* HLSVariant.swift */,
+			000000000000000000000015 /* QoSMetrics.swift */,
+			000000000000000000000017 /* SwitchLog.swift */,
 		); path = "Models"; sourceTree = "<group>"; };
 		000000000000000000000072 /* Views */ = {isa = PBXGroup; children = (
-			000000000000000000000013 /* PlayerView.swift */,
-			000000000000000000000015 /* QoSDashboard.swift */,
-			000000000000000000000017 /* SwitchLogView.swift */,
+			000000000000000000000019 /* PlayerView.swift */,
+			00000000000000000000001b /* QoSDashboard.swift */,
+			00000000000000000000001d /* SwitchLogView.swift */,
 		); path = "Views"; sourceTree = "<group>"; };
 		00000000000000000000006f /* ABRPlayerDemo */ = {isa = PBXGroup; children = (
 			000000000000000000000001 /* ABRPlayerDemoApp.swift */,
@@ -99,15 +108,18 @@
 			000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */,
 			000000000000000000000004 /* ContentView.swift in Sources */,
 			000000000000000000000006 /* ABRPlayerController.swift in Sources */,
-			000000000000000000000008 /* BBAController.swift in Sources */,
-			00000000000000000000000a /* HLSVariantParser.swift in Sources */,
-			00000000000000000000000c /* QoSObservers.swift in Sources */,
-			00000000000000000000000e /* HLSVariant.swift in Sources */,
-			000000000000000000000010 /* QoSMetrics.swift in Sources */,
-			000000000000000000000012 /* SwitchLog.swift in Sources */,
-			000000000000000000000014 /* PlayerView.swift in Sources */,
-			000000000000000000000016 /* QoSDashboard.swift in Sources */,
-			000000000000000000000018 /* SwitchLogView.swift in Sources */,
+			000000000000000000000008 /* ABRController.swift in Sources */,
+			00000000000000000000000a /* BBAController.swift in Sources */,
+			00000000000000000000000c /* HLSVariantParser.swift in Sources */,
+			00000000000000000000000e /* MPCController.swift in Sources */,
+			000000000000000000000010 /* QoSObservers.swift in Sources */,
+			000000000000000000000012 /* ThroughputEstimator.swift in Sources */,
+			000000000000000000000014 /* HLSVariant.swift in Sources */,
+			000000000000000000000016 /* QoSMetrics.swift in Sources */,
+			000000000000000000000018 /* SwitchLog.swift in Sources */,
+			00000000000000000000001a /* PlayerView.swift in Sources */,
+			00000000000000000000001c /* QoSDashboard.swift in Sources */,
+			00000000000000000000001e /* SwitchLogView.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 

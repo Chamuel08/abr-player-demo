@@ -127,6 +127,19 @@ BBA（Buffer-Based Approach）是 SIGCOM 经典论文算法，本 demo 在 AVPla
 - 切档日志原因标记为"弱网模拟"
 - 切档次数仅 1 次（降到底就不再切），卡顿次数 0
 
+### MPC 策略：吞吐预测 + 代价优化
+
+![MPC 正常网络](docs/shot_mpc.png)
+
+- 切换到 MPC 策略后，"预测吞吐"显示 EWMA 估计值（969 kbps），BBA 时该字段为 `--`
+- "累计代价 J"随决策累加（=5），BBA 时恒为 0
+- 切档日志标注 MPC 决策依据：`MPC 预测升档(吞吐充足)` / `MPC 预测降档(吞吐不足)`
+
+![MPC 弱网兜底](docs/shot_mpc_weak.png)
+
+- MPC + 模拟弱网：安全兜底生效，强制最低档，日志标记 `MPC 弱网兜底`
+- 切档次数 1 次、卡顿 0 次——预测不准也不会导致卡顿
+
 ## 项目结构
 
 ```
@@ -135,7 +148,9 @@ abr-player-demo/
 │   └── constitution.md          # SPDD 宪法
 ├── specs/abr-player-demo/
 │   ├── spec.md                  # 需求文档
+│   ├── spec-mpc.md              # MPC 增量 spec
 │   ├── plan.md                  # 技术方案
+│   ├── roadmap.md               # 技术演进路线
 │   └── tasks.md                 # 任务拆解
 ├── ABRPlayerDemo/               # Xcode 项目
 │   ├── ABRPlayerDemo.xcodeproj
@@ -143,8 +158,11 @@ abr-player-demo/
 │       ├── ABRPlayerDemoApp.swift       # App 入口
 │       ├── ContentView.swift           # 主 UI
 │       ├── ABR/
-│       │   ├── ABRPlayerController.swift  # AVPlayer 封装
+│       │   ├── ABRPlayerController.swift  # AVPlayer 封装 + 策略切换
+│       │   ├── ABRController.swift        # ABR 策略协议
 │       │   ├── BBAController.swift        # BBA 算法核心
+│       │   ├── MPCController.swift        # MPC 滚动时域优化
+│       │   ├── ThroughputEstimator.swift  # EWMA 吞吐预测
 │       │   ├── HLSVariantParser.swift     # 码率档位解析
 │       │   └── QoSObservers.swift         # QoS 指标观察器
 │       ├── Models/
@@ -189,44 +207,53 @@ abr-player-demo/
 
 ## 技术演进路线与持续迭代
 
-本 demo 不仅是"一次性可运行"，还留出了明确的迭代路径，方便从 BBA 基线逐步升级到更复杂的 ABR 策略：
+本 demo 不仅是"一次性可运行"，还留出了明确的迭代路径，从 BBA 基线逐步升级到更复杂的 ABR 策略：
 
 ```
 ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────────────┐
 │  MVP     │ ──▶│    BBA       │ ──▶│  BBA + 吞吐  │ ──▶│     BBA + MPC      │
 │ 播放+QoS  │    │ 纯 buffer    │    │ 融合吞吐预测 │    │ 模型预测控制闭环   │
-│ 当前状态  │    │ 当前状态     │    │ 下一迭代     │    │ 远期迭代           │
+│ 已完成    │    │ 已完成       │    │ 已完成       │    │ 已完成（hybrid）   │
 └──────────┘    └──────────────┘    └──────────────┘    └────────────────────┘
 ```
 
-### 当前阶段（已实现）
-- BBA：仅依赖 buffer 水位做决策，鲁棒、可解释
-- QoS 面板：实时监控 7 项指标
-- 模拟弱网：按钮注入环境变量，验证降档行为
+### 已实现阶段
 
-### 下一迭代方向（BBA + 吞吐预测）
-- 在 BBA 的 buffer 基础上，融合 `observedBitrate` 做带宽预测
-- 引入"吞吐下降预警"：当观测吞吐连续下降时，提前降档（BBA 本身只能等 buffer 掉）
-- 仍保持 low-latency，不引入复杂模型
+**BBA（Buffer-Based Approach）** — `ABR/BBAController.swift`
+- 仅依赖 buffer 水位做决策，鲁棒、可解释
+- reservoir/cushion/hysteresis 三段决策（参数依据见上文「参数选择依据」）
 
-### 远期迭代方向（MPC 持续优化）
-- 将 ABR 决策建模为 **Model Predictive Control（MPC）** 问题
-- 控制变量：reservoir、cushion、hysteresis、切换权重
-- 状态变量：buffer、当前码率、观测吞吐、历史卡顿、用户 QoE 反馈
-- 代价函数：
-  - 卡顿惩罚（高权重）
-  - 画质损失惩罚（中权重）
-  - 频繁切档惩罚（中权重）
-  - 计算/能耗代价（低权重）
-- 滚动优化：在每个控制窗口内预测未来数秒的网络与 buffer 变化，选择使预期代价最小的码率序列
-- 离线校准：用模拟器/真机录制的 QoS 日志做回放，自动搜索最优参数组合
+**BBA + 吞吐预测（EWMA）** — `ABR/ThroughputEstimator.swift`
+- 指数加权移动平均平滑 `observedBitrate`，α=0.3
+- 作为 MPC 的状态输入，也作为独立 QoS 指标（预测吞吐）展示
+
+**BBA + MPC（Model Predictive Control）** — `ABR/MPCController.swift`
+- 把 ABR 决策建模为滚动时域优化问题
+- **预测模型**：`buffer(t+1) = buffer(t) + dt*(throughput/bitrate - 1)`，dt=0.5s，时域 H=10（5 秒）
+- **代价函数**：`J = Σ [ w_stall·stall + w_quality·(max-br)/max ] + w_switch·switch`
+  - w_stall=100（卡顿零容忍）/ w_quality=10（画质）/ w_switch=5（切档惩罚）
+- **求解**：对每个候选档位做"保持该档位"的时域展开，取代价最小者（one-step optimization + hold rollout），纯算术，单次 <1ms
+- **hybrid 安全兜底**：buffer < reservoir / 弱网 / 无吞吐观测 时强制最低档，跳过 MPC 优化——即使预测不准也不会卡顿
+- 切档日志标注 `MPC` 前缀，可在 UI 直接观察决策依据
+
+### 如何对比 BBA 与 MPC
+
+UI 控制栏提供 `BBA / MPC` 分段切换器，切换时复用已解析档位、不中断播放。对比看点：
+- **预测吞吐**：BBA 显示 `--`，MPC 显示 EWMA 估计值
+- **累计代价 J**：BBA 恒为 0，MPC 随决策累加
+- **切档日志**：BBA 的 reason 是 `buffer<reservoir 降档保安全`，MPC 是 `MPC 预测升档(吞吐充足)` / `MPC 预测降档(吞吐不足)`
+
+### 下一迭代方向（离线参数校准）
+- 在真机录制不同网络条件下的 QoS 日志（buffer、码率、卡顿、切档）到本地 CSV
+- 对每组 `(reservoir, cushion, hysteresis, w_stall, w_quality, w_switch)` 做网格搜索
+- 选 Pareto 最优参数组合更新到代码
 
 ### 为什么从 BBA 开始而不是直接 MPC
 - BBA 是 ABR 的"安全基线"：不需要准确的带宽预测，对抖动鲁棒
-- MPC 需要高质量的预测模型和代价函数，适合在 BBA 基线稳定后再引入
-- 两者可以 hybrid：BBA 负责安全兜底，MPC 负责在正常网络下优化画质/能耗
+- MPC 需要预测模型和代价函数，适合在 BBA 基线稳定后再引入
+- 两者 hybrid：BBA 负责安全兜底，MPC 负责在正常网络下优化画质/能耗
 
-详见 [`specs/abr-player-demo/roadmap.md`](specs/abr-player-demo/roadmap.md)。
+详见 [`specs/abr-player-demo/roadmap.md`](specs/abr-player-demo/roadmap.md) 与增量 spec [`specs/abr-player-demo/spec-mpc.md`](specs/abr-player-demo/spec-mpc.md)。
 
 ## 技术栈
 

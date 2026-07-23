@@ -18,7 +18,7 @@ import Foundation
 ///
 /// 每 0.5 秒检查一次 buffer 水位，按 BBA 公式计算目标码率，
 /// 通过设置 `AVPlayerItem.preferredPeakBitRate` 转向 AVPlayer 选档。
-final class BBAController {
+final class BBAController: ABRController {
 
     // MARK: - 常量（constitution §3）
 
