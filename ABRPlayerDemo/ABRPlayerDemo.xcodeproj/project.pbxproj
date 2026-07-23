@@ -1,0 +1,133 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* ABRPlayerDemoApp.swift */; };
+		000000000000000000000004 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* ContentView.swift */; };
+		000000000000000000000006 /* ABR/ABRPlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* ABR/ABRPlayerController.swift */; };
+		000000000000000000000008 /* ABR/BBAController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* ABR/BBAController.swift */; };
+		00000000000000000000000a /* ABR/HLSVariantParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* ABR/HLSVariantParser.swift */; };
+		00000000000000000000000c /* ABR/QoSObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000b /* ABR/QoSObservers.swift */; };
+		00000000000000000000000e /* Models/HLSVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000d /* Models/HLSVariant.swift */; };
+		000000000000000000000010 /* Models/QoSMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000f /* Models/QoSMetrics.swift */; };
+		000000000000000000000012 /* Models/SwitchLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* Models/SwitchLog.swift */; };
+		000000000000000000000014 /* Views/PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Views/PlayerView.swift */; };
+		000000000000000000000016 /* Views/QoSDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Views/QoSDashboard.swift */; };
+		000000000000000000000018 /* Views/SwitchLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Views/SwitchLogView.swift */; };
+		000000000000000000000075 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000073 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000001 /* ABRPlayerDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerDemoApp.swift'; sourceTree = "<group>"; };
+		000000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ContentView.swift'; sourceTree = "<group>"; };
+		000000000000000000000005 /* ABR/ABRPlayerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerController.swift'; sourceTree = "<group>"; };
+		000000000000000000000007 /* ABR/BBAController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'BBAController.swift'; sourceTree = "<group>"; };
+		000000000000000000000009 /* ABR/HLSVariantParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariantParser.swift'; sourceTree = "<group>"; };
+		00000000000000000000000b /* ABR/QoSObservers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSObservers.swift'; sourceTree = "<group>"; };
+		00000000000000000000000d /* Models/HLSVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariant.swift'; sourceTree = "<group>"; };
+		00000000000000000000000f /* Models/QoSMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSMetrics.swift'; sourceTree = "<group>"; };
+		000000000000000000000011 /* Models/SwitchLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLog.swift'; sourceTree = "<group>"; };
+		000000000000000000000013 /* Views/PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerView.swift'; sourceTree = "<group>"; };
+		000000000000000000000015 /* Views/QoSDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSDashboard.swift'; sourceTree = "<group>"; };
+		000000000000000000000017 /* Views/SwitchLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLogView.swift'; sourceTree = "<group>"; };
+		000000000000000000000073 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+		000000000000000000000074 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		000000000000000000000078 /* ABRPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ABRPlayerDemo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0000000000000000000000c8 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		000000000000000000000070 /* ABR */ = {isa = PBXGroup; children = (
+			000000000000000000000005 /* ABRPlayerController.swift */,
+			000000000000000000000007 /* BBAController.swift */,
+			000000000000000000000009 /* HLSVariantParser.swift */,
+			00000000000000000000000b /* QoSObservers.swift */,
+		); path = "ABR"; sourceTree = "<group>"; };
+		000000000000000000000071 /* Models */ = {isa = PBXGroup; children = (
+			00000000000000000000000d /* HLSVariant.swift */,
+			00000000000000000000000f /* QoSMetrics.swift */,
+			000000000000000000000011 /* SwitchLog.swift */,
+		); path = "Models"; sourceTree = "<group>"; };
+		000000000000000000000072 /* Views */ = {isa = PBXGroup; children = (
+			000000000000000000000013 /* PlayerView.swift */,
+			000000000000000000000015 /* QoSDashboard.swift */,
+			000000000000000000000017 /* SwitchLogView.swift */,
+		); path = "Views"; sourceTree = "<group>"; };
+		00000000000000000000006f /* ABRPlayerDemo */ = {isa = PBXGroup; children = (
+			000000000000000000000001 /* ABRPlayerDemoApp.swift */,
+			000000000000000000000003 /* ContentView.swift */,
+			000000000000000000000070 /* ABR */,
+			000000000000000000000071 /* Models */,
+			000000000000000000000072 /* Views */,
+			000000000000000000000073 /* Assets.xcassets */,
+			000000000000000000000074 /* Info.plist */,
+		); path = "ABRPlayerDemo"; sourceTree = "<group>"; };
+		00000000000000000000006e /* */ = {isa = PBXGroup; children = (
+			00000000000000000000006f /* ABRPlayerDemo */,
+			000000000000000000000078 /* ABRPlayerDemo.app */,
+		); sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		000000000000000000000067 /* ABRPlayerDemo */ = {isa = PBXNativeTarget; buildConfigurationList = 00000000000000000000006d /* Build configuration list for PBXNativeTarget */; buildPhases = (
+			00000000000000000000006a /* Sources */,
+			000000000000000000000069 /* Resources */,
+		); buildRules = ( ); dependencies = ( ); name = "ABRPlayerDemo"; productName = "ABRPlayerDemo"; productReference = 000000000000000000000078 /* ABRPlayerDemo.app */; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000000000000000000068 /* Project object */ = {isa = PBXProject; attributes = {LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; }; buildConfigurationList = 00000000000000000000006c /* Build configuration list for PBXProject */; compatibilityVersion = "Xcode 14.0"; developmentRegion = "en"; hasScannedForEncodings = 0; knownRegions = ("en", "Base", ); mainGroup = 00000000000000000000006e /* */; packageReferences = ( ); productRefGroup = 00000000000000000000006e /* */; projectDirPath = ""; projectRoot = ""; targets = (
+			000000000000000000000067 /* ABRPlayerDemo */,
+		); };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		000000000000000000000069 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
+			000000000000000000000075 /* Assets.xcassets in Resources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00000000000000000000006a /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */,
+			000000000000000000000004 /* ContentView.swift in Sources */,
+			000000000000000000000006 /* ABRPlayerController.swift in Sources */,
+			000000000000000000000008 /* BBAController.swift in Sources */,
+			00000000000000000000000a /* HLSVariantParser.swift in Sources */,
+			00000000000000000000000c /* QoSObservers.swift in Sources */,
+			00000000000000000000000e /* HLSVariant.swift in Sources */,
+			000000000000000000000010 /* QoSMetrics.swift in Sources */,
+			000000000000000000000012 /* SwitchLog.swift in Sources */,
+			000000000000000000000014 /* PlayerView.swift in Sources */,
+			000000000000000000000016 /* QoSDashboard.swift in Sources */,
+			000000000000000000000018 /* SwitchLogView.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		000000000000000000000076 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+		000000000000000000000079 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+		000000000000000000000077 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
+		00000000000000000000007a /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00000000000000000000006c /* Build configuration list for PBXProject */ = {isa = XCConfigurationList; buildConfigurations = (
+			000000000000000000000076 /* Debug */,
+			000000000000000000000079 /* Release */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		00000000000000000000006d /* Build configuration list for PBXNativeTarget */ = {isa = XCConfigurationList; buildConfigurations = (
+			000000000000000000000077 /* Debug */,
+			00000000000000000000007a /* Release */,
+		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000000000000000000068 /* Project object */;
+}
