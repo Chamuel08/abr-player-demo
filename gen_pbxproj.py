@@ -2,7 +2,7 @@
 # Generates a minimal Xcode project.pbxproj for ABRPlayerDemo
 import os
 
-ROOT = "/Users/wendong_zhangwendong/Downloads/简历/abr-player-demo/ABRPlayerDemo"
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ABRPlayerDemo")
 
 # Source files (relative to ABRPlayerDemo/ABRPlayerDemo)
 sources = [

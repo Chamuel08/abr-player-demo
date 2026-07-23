@@ -4,13 +4,13 @@
 
 ## 1. 项目背景
 
-这是一个用来实践 SPDD（Spec-Driven Development）方法论和端侧 ABR 算法的练手项目。目标是用"先定义 spec、再用 AI 按 spec 生成代码"的方式，在不熟悉的技术栈（iOS / Swift）上快速交付一个可运行的播放器，并验证自定义 BBA 算法和 QoS 监控的端侧落地。本 demo 用于证明：① 理解 ABR 算法原理（BBA）② 能用 SPDD 方法论驱动 AI 在新技术栈（iOS/Swift）上快速交付 ③ 理解 QoS 监控体系。
+这是一个用来实践 SPDD（Spec-Driven Development）方法论和端侧 ABR 算法的练手项目。目标是用"先定义 spec、再用 AI 按 spec 生成代码"的方式，在不熟悉的技术栈（iOS / Swift）上快速交付一个可运行的播放器，并验证自定义 BBA 算法和 QoS 监控的端侧落地。本 demo 的三个目标：① 实践 ABR 算法原理（BBA）② 用 SPDD 方法论驱动 AI 在新技术栈（iOS/Swift）上快速交付 ③ 落地 QoS 监控体系。
 
 ## 2. 用户故事
 
 **作为** 播放器开发者，
 **我想** 实现一个 iOS 播放器 demo，用自定义 BBA 算法覆盖 AVPlayer 默认 ABR，并实时显示 QoS 指标，
-**以便** 验证端侧 ABR 策略和 QoS 监控的端侧落地，并证明能用 SPDD 方法论在不熟悉的技术栈上快速交付。
+**以便** 验证端侧 ABR 策略和 QoS 监控的端侧落地，并实践用 SPDD 方法论在不熟悉的技术栈上快速交付。
 
 **作为** 项目维护者，
 **我想** 用 SPDD 流程（constitution→spec→plan→tasks→implement）开发这个 demo，

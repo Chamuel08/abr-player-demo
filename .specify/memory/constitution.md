@@ -21,10 +21,10 @@
 ## 3. ABR 算法约束（核心）
 
 - 必须实现 BBA（Buffer-Based Approach），禁止依赖 AVPlayer 默认 ABR
-- BBA 参数：
-  - reservoir = 5s（buffer 低于此值强制最低档，保不卡顿）
-  - cushion = 10s（buffer 高于 reservoir + cushion = 15s 可冲最高档）
-  - 滞回系数 = 0.8（切档阈值乘以 0.8，避免在边界频繁切档）
+- BBA 参数（参数选择依据见 README.md「参数选择依据」一节）：
+  - reservoir = 5s（buffer 低于此值强制最低档，保不卡顿）—— 依据：AVPlayer 响应延迟 ~1-2s 的安全余量，需大于 segment 时长
+  - cushion = 10s（buffer 高于 reservoir + cushion = 15s 可冲最高档）—— 依据：原论文 cushion ≈ reservoir 比例，控制升档平滑度
+  - 滞回系数 = 0.8（切档阈值乘以 0.8，避免在边界频繁切档）—— 依据：降档比升档容易 25% 的不对称设计，卡顿代价 > 画质偏低代价
 - 控制循环必须记录每次切档决策的完整日志：`{timestamp, from_bitrate, to_bitrate, buffer_seconds, reason}`
 - 禁止在 buffer < reservoir 时选非最低档（安全第一，宁可画质差不可卡顿）
 
