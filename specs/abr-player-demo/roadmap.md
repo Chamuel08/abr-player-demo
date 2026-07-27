@@ -1,6 +1,6 @@
 # Roadmap：iOS ABR Player Demo 技术演进路线
 
-> 状态：规划中（Vision）
+> 状态：阶段一、二已完成；阶段三（离线参数校准）进行中
 >
 > 本文件描述 `abr-player-demo` 从当前 BBA 基线到 BBA + 吞吐预测、再到 BBA + MPC 闭环的持续迭代路径。
 
@@ -12,7 +12,7 @@
 - 切档日志 + 模拟弱网开关
 - SPDD 四件套文档（constitution / spec / plan / tasks）
 
-## 阶段一：BBA + 吞吐预测（下一迭代）
+## 阶段一：BBA + 吞吐预测（已完成）
 
 目标：在 BBA 的 buffer 基础上，引入轻量带宽预测，让降档更前置、升档更积极。
 
@@ -35,7 +35,11 @@
 - 正常网络下，升档速度不劣化
 - QoS 面板新增"预测吞吐"字段
 
-## 阶段二：BBA + MPC（远期迭代）
+## 阶段二：BBA + MPC（已完成并经阶段三修正，见 [spec-mpc.md](spec-mpc.md)）
+
+> 验收标准"MPC 卡顿 ≤ BBA"初版未满足：`dt = 0.5s, H = 10` 的预测窗口（5s）约等于
+> reservoir，rollout 里卡顿项恒为 0。改为 segment 粒度（`dt = 4s, H = 5`，窗口 20s）后
+> 卡顿 10.26s < BBA 10.33s、切档减少 64%，验收通过。详见 [spec-calibration.md](spec-calibration.md) §6。
 
 目标：把 ABR 策略参数和码率序列选择建模为 Model Predictive Control（MPC）问题，实现数据驱动的自动优化。
 
@@ -98,14 +102,15 @@ J(u) = Σ_t [
 
 ### 滚动优化
 
-在每个控制周期（0.5s）求解：
+在每个 segment 边界（4s）求解：
 
 ```
 u*(t) = argmin_{u ∈ U} J(u) over horizon H
 ```
 
-- 预测时域 H = 10 步（5 秒）
-- 只应用第一个控制动作 `u*(t)`，下一周期重新观测并优化
+- 预测时域 H = 5 步 × dt 4s = 20 秒窗口（约束：`H × dt` 必须显著大于 reservoir）
+- 只应用第一个控制动作 `u*(t)`，下个 segment 重新观测并优化
+- 安全兜底不受此节奏约束，仍每 0.5s 检查
 - 求解方式：由于控制变量离散（档位有限），可用穷举搜索或 beam search，计算量可控
 
 ### 与 BBA 的 hybrid 融合
@@ -114,12 +119,19 @@ u*(t) = argmin_{u ∈ U} J(u) over horizon H
 - BBA 负责"安全兜底"：当 buffer < reservoir 或预测模型失效时，强制最低档
 - 这样即使 MPC 预测不准，也不会导致卡顿
 
-## 阶段三：离线参数校准（持续）
+## 阶段三：离线参数校准（进行中，见 [spec-calibration.md](spec-calibration.md)）
 
-- 用模拟器/真机录制不同网络条件下的 QoS 日志（buffer、码率、卡顿、切档）
-- 用 Network Link Conditioner 或自定义弱网环境回放日志
-- 对每一组 `(reservoir, cushion, hysteresis, w_stall, w_quality, w_switch)` 做网格搜索
-- 选择 Pareto 最优的参数组合，更新到 `BBAController.swift` 或 MPC 配置
+已落地：
+
+- `scripts/download_traces.sh` 拉取公开真实吞吐 trace（Norway 3G / FCC / Oboe / Puffer）
+- `scripts/simulate_abr.py` 用 trace 驱动 BBA / MPC 决策，逻辑与 Swift 逐行对齐
+- `scripts/grid_search.py` 训练集搜参、测试集报数，输出 Pareto 前沿
+- 用仿真结论修正了 MPC 时域粒度（见阶段二说明），已写回 `MPCController.swift`
+
+待办：
+
+- 把候选参数在真机上过 Network Link Conditioner 验收，再写回 Swift
+- QoS 日志落 CSV（真机侧），用于校准仿真器与真实 AVPlayer 的偏差
 
 ## 数据收集
 

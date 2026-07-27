@@ -34,14 +34,20 @@
 ### 3.3 MPC 控制器
 
 - 状态：`buffer_seconds`、`current_bitrate`、`observed_bitrate`、`estimated_throughput`。
-- 预测模型：`buffer(t+1) = buffer(t) + dt * (throughput / target_bitrate - 1)`，`dt = 0.5s`，时域 `H = 10`（5 秒）。
+- 预测模型：`buffer(t+1) = buffer(t) + dt * (throughput / target_bitrate - 1)`。
+- **时域粒度：按 segment 推进**，`dt = segment 时长 = 4s`，`H = 5`（20 秒窗口），对齐 FastMPC/RobustMPC（Yin et al. SIGCOMM '15）的标准形式。
+  - CRITICAL：`H * dt` 必须显著大于 `reservoir`。否则 rollout 推演到时域末尾 buffer 还没跌破 0，`stall_penalty` 恒为 0，MPC 看不见卡顿风险、只会一味冲最高档。初版取 `dt = 0.5s, H = 10`（窗口 5s ≈ reservoir）即踩此坑，由离线仿真发现并修正，见 [spec-calibration.md](spec-calibration.md) §6。
 - 代价函数：
-  `J = Σ_t [ w_stall * stall_penalty + w_quality * (max - target)/max + w_switch * switch_indicator ]`
+  `J = Σ_t [ w_stall * stall_seconds + w_quality * dt * (max - target)/max ] + w_switch * switch_indicator`
   - `w_stall = 100`，`w_quality = 10`，`w_switch = 5`
-  - `stall_penalty`：预测 buffer < 0 计 1 次
-  - `switch_indicator`：预测步码率 ≠ 上一步计 1
+  - `stall_seconds`：预测 buffer 跌破 0 时，按线性插值折算的见底秒数（**不是计 1 次**）
+  - `switch_indicator`：候选档位 ≠ 当前档位计 1
+  - CRITICAL：卡顿与画质均按"每秒"计，量纲不得依赖 `dt`。若按"步数"计，改 `dt` 会同时改变卡顿与画质的相对权重，参数搜索结论失效。
 - 求解：对每个候选下一档位，用"保持该档位"策略滚动展开时域，取总代价最小的候选作为本周期动作（one-step optimization + hold rollout）。
 - **安全兜底（不可妥协）**：当 `buffer < reservoir` 或 `simulateWeakNetwork` 或 `estimated_throughput <= 0` 时，强制最低档，跳过 MPC 优化。
+- **节奏解耦**：rollout 只在 segment 边界（播放时间推进满 `segmentDuration`）重算；安全兜底仍每 `controlLoopInterval = 0.5s` 检查。未到边界且已有目标档位时维持不变。
+  - 理由：若安全兜底也降到 4s 一次，`buffer < reservoir` 的降档反应会慢 4 倍，等于拿卡顿换切档平稳。
+  - seek 导致播放时间回退时重置边界计时。
 - 切档日志复用 `SwitchLog`，reason 标注 `MPC` 前缀。
 
 ### 3.4 QoS 面板扩展
@@ -52,7 +58,7 @@
 
 ## 4. 非功能需求
 
-- MPC 优化每 0.5s 一次，单次求解 ≤ 1ms 量级（候选数 × 时域，纯算术）。
+- MPC rollout 每 segment（4s）重算一次，安全兜底每 0.5s 检查一次；单次求解 ≤ 1ms 量级（候选数 × 时域，纯算术）。
 - 不引入任何第三方依赖。
 - 切换策略时不中断播放，variants 复用已解析结果。
 

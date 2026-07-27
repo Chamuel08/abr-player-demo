@@ -16,3 +16,10 @@ Packages/
 
 # CocoaPods (not used, but just in case)
 Pods/
+
+# 公开吞吐 trace 数据集（落盘约 125MB，用 scripts/download_traces.sh 拉取，不入库）
+data/
+
+# Python
+__pycache__/
+*.pyc

@@ -23,7 +23,9 @@
 | Plan | [`specs/abr-player-demo/plan.md`](specs/abr-player-demo/plan.md) | 技术方案（架构、模块设计、数据流、技术决策） |
 | Tasks | [`specs/abr-player-demo/tasks.md`](specs/abr-player-demo/tasks.md) | 任务拆解（给 AI 执行的清单） |
 | Implement | [`ABRPlayerDemo/`](ABRPlayerDemo/) | Xcode 项目实现 |
-| Roadmap | [`specs/abr-player-demo/roadmap.md`](specs/abr-player-demo/roadmap.md) | 技术演进路线（BBA → MPC） |
+| Roadmap | [`specs/abr-player-demo/roadmap.md`](specs/abr-player-demo/roadmap.md) | 技术演进路线（BBA → MPC → 离线校准） |
+
+> 想快速了解策略设计思路与验证方法，看 [`docs/ABR策略落地说明.md`](docs/ABR策略落地说明.md)（约 2 页）。
 
 **流程纪律**：constitution 是不可妥协的，spec/plan/tasks 任何与之冲突的地方标 CRITICAL；spec 先于 plan，plan 先于 tasks，tasks 先于 implement；implement 阶段发现 spec 不可行时，必须回 spec 修改，不能直接绕过。
 
@@ -149,9 +151,14 @@ abr-player-demo/
 ├── specs/abr-player-demo/
 │   ├── spec.md                  # 需求文档
 │   ├── spec-mpc.md              # MPC 增量 spec
+│   ├── spec-calibration.md      # 离线参数校准增量 spec
 │   ├── plan.md                  # 技术方案
 │   ├── roadmap.md               # 技术演进路线
 │   └── tasks.md                 # 任务拆解
+├── scripts/                     # 离线参数校准（Python，无第三方依赖）
+│   ├── download_traces.sh       # 拉取公开吞吐 trace
+│   ├── simulate_abr.py          # ABR 仿真器（BBA / MPC）
+│   └── grid_search.py           # 参数网格搜索 + Pareto 前沿
 ├── ABRPlayerDemo/               # Xcode 项目
 │   ├── ABRPlayerDemo.xcodeproj
 │   └── ABRPlayerDemo/
@@ -229,11 +236,14 @@ abr-player-demo/
 
 **BBA + MPC（Model Predictive Control）** — `ABR/MPCController.swift`
 - 把 ABR 决策建模为滚动时域优化问题
-- **预测模型**：`buffer(t+1) = buffer(t) + dt*(throughput/bitrate - 1)`，dt=0.5s，时域 H=10（5 秒）
-- **代价函数**：`J = Σ [ w_stall·stall + w_quality·(max-br)/max ] + w_switch·switch`
+- **预测模型**：`buffer(t+1) = buffer(t) + dt*(throughput/bitrate - 1)`
+- **时域粒度**：按 segment 推进，`dt = segment 时长 = 4s`，`H = 5`（20 秒窗口），对齐 FastMPC/RobustMPC 的标准形式。窗口必须显著大于 reservoir，否则 rollout 里 buffer 推不到 0、卡顿项恒为 0（见[离线校准](#离线参数校准在公开真实-trace-上搜参)一节，这是仿真发现并修正的实现缺陷）
+- **代价函数**：`J = Σ [ w_stall·stallSeconds + w_quality·dt·(max-br)/max ] + w_switch·switch`
   - w_stall=100（卡顿零容忍）/ w_quality=10（画质）/ w_switch=5（切档惩罚）
+  - 卡顿与画质均按"每秒"计，量纲与 `dt` 解耦：调时域参数不会意外改变两者的相对权重
 - **求解**：对每个候选档位做"保持该档位"的时域展开，取代价最小者（one-step optimization + hold rollout），纯算术，单次 <1ms
 - **hybrid 安全兜底**：buffer < reservoir / 弱网 / 无吞吐观测 时强制最低档，跳过 MPC 优化——即使预测不准也不会卡顿
+- **节奏解耦**：rollout 只在 segment 边界重算，安全兜底仍每 0.5s 检查，兼顾"优化决策稳"与"安全反应快"
 - 切档日志标注 `MPC` 前缀，可在 UI 直接观察决策依据
 
 ### 如何对比 BBA 与 MPC
@@ -243,10 +253,98 @@ UI 控制栏提供 `BBA / MPC` 分段切换器，切换时复用已解析档位�
 - **累计代价 J**：BBA 恒为 0，MPC 随决策累加
 - **切档日志**：BBA 的 reason 是 `buffer<reservoir 降档保安全`，MPC 是 `MPC 预测升档(吞吐充足)` / `MPC 预测降档(吞吐不足)`
 
-### 下一迭代方向（离线参数校准）
-- 在真机录制不同网络条件下的 QoS 日志（buffer、码率、卡顿、切档）到本地 CSV
-- 对每组 `(reservoir, cushion, hysteresis, w_stall, w_quality, w_switch)` 做网格搜索
-- 选 Pareto 最优参数组合更新到代码
+## 离线参数校准（在公开真实 trace 上搜参）
+
+参数不该只靠工程经验取值。这一层用**公开真实网络吞吐 trace** 做大规模搜参，把参数结论从"手动观察几次"升级为"几百条 trace 上的统计结果"。
+
+### 两层验证的职责边界
+
+constitution §5 要求"禁止 mock 流，必须用真实 HLS 流"，但几千组参数 × 每组数百秒的真机回放不可行。所以分两层，边界写死：
+
+| 层 | 载体 | 数据 | 职责 |
+|---|---|---|---|
+| 离线仿真层 | Python（`scripts/`） | 公开真实吞吐 trace | 大规模搜参，产出候选参数与 Pareto 前沿 |
+| 真机验收层 | iOS + Network Link Conditioner | 真实 HLS 流 | 只验证 2~3 组候选，确认结论在真实 AVPlayer 上成立 |
+
+**离线层不替代真机验收**，它只负责缩小搜索空间。任何参数写回 Swift 之前必须过真机验收。
+
+### 数据集
+
+用 [confiwent/Real-world-bandwidth-traces](https://github.com/confiwent/Real-world-bandwidth-traces)（MIT License，MERINA MM'22 论文数据集），它把学界 ABR 常用的公开 trace 统一成 `[时间戳(秒), 吞吐(Mbit/s)]` 两列格式：
+
+| 数据集 | trace 数 | 时长中位数 | 平均吞吐中位数 | 用途 |
+|---|---|---|---|---|
+| Norway 3G/HSDPA | 80 | 302s | 1.35 Mbps | 车载移动弱网，抖动剧烈 |
+| FCC | 127 | 1187s | 1.19 Mbps | 宽带，长时段平稳 |
+| FCC + HSDPA | 166 训练 / 117 测试 | 316s | 1.42 Mbps | 自带 train/test 划分，搜参用 |
+| Oboe | 428 | 177s | 2.97 Mbps | 带宽较高，测升档积极性 |
+| Puffer 2021-10 / 2022-02 | 1500 / 435 | 600s / 448s | 1.87 / 1.31 Mbps | 真实用户会话 |
+
+数据集 clone 约 169MB、删掉 `.git` 后落盘 125MB，**不入库**，用脚本拉取。
+
+### 用法
+
+```bash
+./scripts/download_traces.sh                                    # 拉取 trace
+python3 scripts/simulate_abr.py --dataset norway_3g --strategy both
+python3 scripts/grid_search.py --strategy bba --trace-scale 0.3
+```
+
+纯 Python 标准库，无第三方依赖。BBA 全网格 125 组 <1s，MPC 729 组约 1.7s（14 核）。
+
+### 仿真器的三条设计纪律
+
+1. **决策逻辑与 Swift 逐行对齐** —— `BBAPolicy` 对应 `BBAController.decide/quantize`，`MPCPolicy` 对应 `MPCController.decide/rolloutCost`（含三种安全兜底）。两边不一致时以 Swift 为准，改仿真器。
+2. **buffer 动力学独立推演** —— 按"下载进度 + 播放消耗"真实演算，不复用 MPC 内部的预测模型。否则 MPC 会在自己的假设里自证，仿真结果毫无意义。
+3. **首帧与卡顿分开计** —— 起播前的 buffer 填充是首帧耗时，不是 rebuffer。混在一起会让所有参数组合的卡顿数看起来一样。
+
+### 已得到的结论
+
+**BBA 搜参有效**。在 FCC+HSDPA 上训练、测试集报数（`--trace-scale 0.3`）：
+
+| 来源 | 码率 | 卡顿 | 切档次数 | 参数 |
+|---|---|---|---|---|
+| 当前默认 | 562 kbps | 10.33s | 41.8 | reservoir=5 cushion=10 hysteresis=0.8 |
+| 搜索最优 | 821 kbps | 10.10s | 16.4 | reservoir=6 cushion=15 hysteresis=0.95 |
+
+码率 +46%、卡顿略降、切档次数减半——更大的 `hysteresis` 和 `cushion` 在真实 trace 上明显更优。
+
+**仿真反过来纠正了 MPC 的实现**。roadmap 阶段二的验收标准是"MPC 卡顿 ≤ BBA"，但仿真显示初版 MPC 并不满足。同一测试集（`--trace-scale 0.3`，60 条 trace，120s）：
+
+| 配置 | 卡顿 | 平均码率 | 切档次数 | QoE |
+|---|---|---|---|---|
+| BBA 基线 | 10.33s | 562 kbps | 41.8 | -0.826 |
+| MPC 初版（dt=0.5s, H=10 → 窗口 5s） | 10.37s | 2498 kbps | 118.9 | -4.693 |
+| MPC 修正后（dt=4s, H=5 → 窗口 20s） | **10.26s** | 501 kbps | **15.0** | **-0.791** |
+
+根因是**预测粒度选错了**。初版把 MPC 做成 0.5s 控制周期，`horizon × dt = 5s ≈ reservoir`，rollout 推演到时域末尾 buffer 还没跌破 0，代价函数里的卡顿项恒为 0 —— MPC 看不见卡顿风险，就只剩画质项和切档项可优化，于是一味冲最高档（2498 kbps、119 次切档，QoE -4.69 远差于 BBA）。
+
+对照 ABR 领域的标准形式（FastMPC/RobustMPC, Yin et al. SIGCOMM '15），MPC 应当**按 segment 决策**：`dt = segment 时长 = 4s`，`H = 5`，窗口 20s 远超 reservoir，卡顿项才始终是活的。改成 segment 粒度后卡顿降到 10.26s（低于 BBA 的 10.33s）、切档减少 64%、QoE 反超 BBA，阶段二验收通过。
+
+配套改了两处，否则粒度切换会引入新的失真：
+
+- **卡顿惩罚按秒计**，不按"步数"计。原来每步见底记一次卡顿，惩罚量纲会随 `dt` 变化而漂移（dt 减半，同样的卡顿被记两倍次数）。改成按线性插值折算实际见底秒数后，`w_stall` 的含义固定为"每秒卡顿的代价"，调 `dt` / `horizon` 不会意外改变卡顿与画质的相对权重。画质项同样乘上 `dt`。
+- **决策节奏与安全兜底解耦**。rollout 只在 segment 边界重算，但三条安全兜底（弱网 / `buffer < reservoir` / 无吞吐观测）仍每 0.5s 检查。否则降档反应会慢 4 倍，等于拿卡顿换切档平稳，是笔坏交易。
+
+窗口长度的扫描（`dt=4s` 固定，改 `H`）说明这不是取值碰巧：
+
+| H | 窗口 | 卡顿 | 平均码率 | 切档次数 |
+|---|---|---|---|---|
+| 1 | 4s | 10.32s | 2490 kbps | 36.7 |
+| 2 | 8s | 10.30s | 1853 kbps | 39.0 |
+| 3 | 12s | 10.24s | 725 kbps | 19.1 |
+| 5 | 20s | 10.26s | 501 kbps | 15.0 |
+| 8 | 32s | 10.10s | 483 kbps | 11.1 |
+
+窗口 ≤ 8s 时卡顿项基本失效（码率虚高、切档频繁）；跨过 12s 后行为才稳定下来。判据是那个不等式：**`horizon × dt` 必须显著大于 `reservoir`**。
+
+**这些已写回 Swift**（`MPCController.swift`）。但 MPC 的代价权重搜参结果（`w_stall=50 w_quality=20 w_switch=100 reservoir=8 cushion=6`，测试集 2299 kbps / 9.89s / QoE 0.562）**尚未写回**：它把码率拉高 4.6 倍而卡顿只降 0.4s，收益看着过好，需要真机确认 —— AVPlayer 的 `preferredPeakBitRate` 有 1~2s 响应延迟，仿真里没建模。待办记在 tasks.md T4.4。
+
+### 一个容易踩的坑
+
+`--trace-scale` 默认 1.0 时，trace 吞吐（~1.4 Mbps）远高于 Mux 阶梯最低档（246 kbps），任何选档都不会卡顿——卡顿只由 trace 里吞吐归零的断网引起，与算法无关。此时 125 组参数的卡顿数完全相同，Pareto 前沿退化成一个点。调小到 0.3 让档位真正起约束，前沿才有 4 个点。
+
+值得记下来的是这个坑的**误判方向**：搜索程序完全正常，输出也没有报错，但它会让人得出"参数搜索没用"的结论——而真实原因是实验条件没有约束到被测机理。这类失效在生产 A/B 测试里同样存在：一个不触发目标机制的实验，会自信地报出"无显著差异"。搜参前先确认档位是否真的在约束决策。
 
 ### 为什么从 BBA 开始而不是直接 MPC
 - BBA 是 ABR 的"安全基线"：不需要准确的带宽预测，对抖动鲁棒
