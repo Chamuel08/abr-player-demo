@@ -7,74 +7,104 @@
 
 /* Begin PBXBuildFile section */
 		000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000001 /* ABRPlayerDemoApp.swift */; };
-		000000000000000000000004 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* ContentView.swift */; };
-		000000000000000000000006 /* ABR/ABRPlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* ABR/ABRPlayerController.swift */; };
-		000000000000000000000008 /* ABR/ABRController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* ABR/ABRController.swift */; };
-		00000000000000000000000a /* ABR/BBAController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* ABR/BBAController.swift */; };
-		00000000000000000000000c /* ABR/HLSVariantParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000b /* ABR/HLSVariantParser.swift */; };
-		00000000000000000000000e /* ABR/MPCController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000d /* ABR/MPCController.swift */; };
-		000000000000000000000010 /* ABR/QoSObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000f /* ABR/QoSObservers.swift */; };
-		000000000000000000000012 /* ABR/ThroughputEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* ABR/ThroughputEstimator.swift */; };
-		000000000000000000000014 /* Models/HLSVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* Models/HLSVariant.swift */; };
-		000000000000000000000016 /* Models/QoSMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* Models/QoSMetrics.swift */; };
-		000000000000000000000018 /* Models/SwitchLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* Models/SwitchLog.swift */; };
-		00000000000000000000001a /* Views/PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* Views/PlayerView.swift */; };
-		00000000000000000000001c /* Views/QoSDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001b /* Views/QoSDashboard.swift */; };
-		00000000000000000000001e /* Views/SwitchLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001d /* Views/SwitchLogView.swift */; };
+		000000000000000000000004 /* App/AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000003 /* AppEnvironment.swift */; };
+		000000000000000000000006 /* App/SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000005 /* SettingsStore.swift */; };
+		000000000000000000000008 /* App/StreamLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000007 /* StreamLibrary.swift */; };
+		00000000000000000000000a /* App/PlaybackHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000009 /* PlaybackHistoryItem.swift */; };
+		00000000000000000000000c /* App/QoSLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000b /* QoSLogEntry.swift */; };
+		00000000000000000000000e /* Features/Library/LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000d /* LibraryView.swift */; };
+		000000000000000000000010 /* Features/Player/PlayerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000f /* PlayerScreen.swift */; };
+		000000000000000000000012 /* Features/Player/PlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000011 /* PlayerViewModel.swift */; };
+		000000000000000000000014 /* Features/Player/PlayerControlsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000013 /* PlayerControlsBar.swift */; };
+		000000000000000000000016 /* Features/Player/PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000015 /* PlayerView.swift */; };
+		000000000000000000000018 /* Features/Player/QoSDebugSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000017 /* QoSDebugSheet.swift */; };
+		00000000000000000000001a /* Features/Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000019 /* SettingsView.swift */; };
+		00000000000000000000001c /* Features/Logs/SwitchLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001b /* SwitchLogView.swift */; };
+		00000000000000000000001e /* Infrastructure/QoSObservers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001d /* QoSObservers.swift */; };
+		000000000000000000000020 /* Infrastructure/AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000001f /* AudioSessionManager.swift */; };
+		000000000000000000000022 /* Infrastructure/NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000021 /* NetworkMonitor.swift */; };
+		000000000000000000000024 /* Infrastructure/PiPCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000023 /* PiPCoordinator.swift */; };
+		000000000000000000000026 /* Infrastructure/LifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000025 /* LifecycleHandler.swift */; };
+		000000000000000000000028 /* Infrastructure/QoSLogExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000027 /* QoSLogExporter.swift */; };
 		000000000000000000000075 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000073 /* Assets.xcassets */; };
+		000000000000000000000084 /* ABREngine in Frameworks */ = {isa = PBXBuildFile; productName = ABREngine; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		000000000000000000000001 /* ABRPlayerDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerDemoApp.swift'; sourceTree = "<group>"; };
-		000000000000000000000003 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ContentView.swift'; sourceTree = "<group>"; };
-		000000000000000000000005 /* ABR/ABRPlayerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRPlayerController.swift'; sourceTree = "<group>"; };
-		000000000000000000000007 /* ABR/ABRController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ABRController.swift'; sourceTree = "<group>"; };
-		000000000000000000000009 /* ABR/BBAController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'BBAController.swift'; sourceTree = "<group>"; };
-		00000000000000000000000b /* ABR/HLSVariantParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariantParser.swift'; sourceTree = "<group>"; };
-		00000000000000000000000d /* ABR/MPCController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'MPCController.swift'; sourceTree = "<group>"; };
-		00000000000000000000000f /* ABR/QoSObservers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSObservers.swift'; sourceTree = "<group>"; };
-		000000000000000000000011 /* ABR/ThroughputEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'ThroughputEstimator.swift'; sourceTree = "<group>"; };
-		000000000000000000000013 /* Models/HLSVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'HLSVariant.swift'; sourceTree = "<group>"; };
-		000000000000000000000015 /* Models/QoSMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSMetrics.swift'; sourceTree = "<group>"; };
-		000000000000000000000017 /* Models/SwitchLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLog.swift'; sourceTree = "<group>"; };
-		000000000000000000000019 /* Views/PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerView.swift'; sourceTree = "<group>"; };
-		00000000000000000000001b /* Views/QoSDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSDashboard.swift'; sourceTree = "<group>"; };
-		00000000000000000000001d /* Views/SwitchLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLogView.swift'; sourceTree = "<group>"; };
+		000000000000000000000003 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'AppEnvironment.swift'; sourceTree = "<group>"; };
+		000000000000000000000005 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SettingsStore.swift'; sourceTree = "<group>"; };
+		000000000000000000000007 /* StreamLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'StreamLibrary.swift'; sourceTree = "<group>"; };
+		000000000000000000000009 /* PlaybackHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlaybackHistoryItem.swift'; sourceTree = "<group>"; };
+		00000000000000000000000b /* QoSLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSLogEntry.swift'; sourceTree = "<group>"; };
+		00000000000000000000000d /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'LibraryView.swift'; sourceTree = "<group>"; };
+		00000000000000000000000f /* PlayerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerScreen.swift'; sourceTree = "<group>"; };
+		000000000000000000000011 /* PlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerViewModel.swift'; sourceTree = "<group>"; };
+		000000000000000000000013 /* PlayerControlsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerControlsBar.swift'; sourceTree = "<group>"; };
+		000000000000000000000015 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PlayerView.swift'; sourceTree = "<group>"; };
+		000000000000000000000017 /* QoSDebugSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSDebugSheet.swift'; sourceTree = "<group>"; };
+		000000000000000000000019 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SettingsView.swift'; sourceTree = "<group>"; };
+		00000000000000000000001b /* SwitchLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'SwitchLogView.swift'; sourceTree = "<group>"; };
+		00000000000000000000001d /* QoSObservers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSObservers.swift'; sourceTree = "<group>"; };
+		00000000000000000000001f /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'AudioSessionManager.swift'; sourceTree = "<group>"; };
+		000000000000000000000021 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'NetworkMonitor.swift'; sourceTree = "<group>"; };
+		000000000000000000000023 /* PiPCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'PiPCoordinator.swift'; sourceTree = "<group>"; };
+		000000000000000000000025 /* LifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'LifecycleHandler.swift'; sourceTree = "<group>"; };
+		000000000000000000000027 /* QoSLogExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 'QoSLogExporter.swift'; sourceTree = "<group>"; };
 		000000000000000000000073 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
 		000000000000000000000074 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		000000000000000000000078 /* ABRPlayerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ABRPlayerDemo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0000000000000000000000c8 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = ( ); runOnlyForDeploymentPostprocessing = 0; };
+		0000000000000000000000c8 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+			000000000000000000000084 /* ABREngine in Frameworks */,
+		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		000000000000000000000070 /* ABR */ = {isa = PBXGroup; children = (
-			000000000000000000000005 /* ABRPlayerController.swift */,
-			000000000000000000000007 /* ABRController.swift */,
-			000000000000000000000009 /* BBAController.swift */,
-			00000000000000000000000b /* HLSVariantParser.swift */,
-			00000000000000000000000d /* MPCController.swift */,
-			00000000000000000000000f /* QoSObservers.swift */,
-			000000000000000000000011 /* ThroughputEstimator.swift */,
-		); path = "ABR"; sourceTree = "<group>"; };
-		000000000000000000000071 /* Models */ = {isa = PBXGroup; children = (
-			000000000000000000000013 /* HLSVariant.swift */,
-			000000000000000000000015 /* QoSMetrics.swift */,
-			000000000000000000000017 /* SwitchLog.swift */,
-		); path = "Models"; sourceTree = "<group>"; };
-		000000000000000000000072 /* Views */ = {isa = PBXGroup; children = (
-			000000000000000000000019 /* PlayerView.swift */,
-			00000000000000000000001b /* QoSDashboard.swift */,
-			00000000000000000000001d /* SwitchLogView.swift */,
-		); path = "Views"; sourceTree = "<group>"; };
+		00000000000000000000012e /* Library */ = {isa = PBXGroup; children = (
+			00000000000000000000000d /* LibraryView.swift */,
+		); path = 'Library'; sourceTree = "<group>"; };
+		00000000000000000000012f /* Player */ = {isa = PBXGroup; children = (
+			00000000000000000000000f /* PlayerScreen.swift */,
+			000000000000000000000011 /* PlayerViewModel.swift */,
+			000000000000000000000013 /* PlayerControlsBar.swift */,
+			000000000000000000000015 /* PlayerView.swift */,
+			000000000000000000000017 /* QoSDebugSheet.swift */,
+		); path = 'Player'; sourceTree = "<group>"; };
+		000000000000000000000130 /* Settings */ = {isa = PBXGroup; children = (
+			000000000000000000000019 /* SettingsView.swift */,
+		); path = 'Settings'; sourceTree = "<group>"; };
+		000000000000000000000131 /* Logs */ = {isa = PBXGroup; children = (
+			00000000000000000000001b /* SwitchLogView.swift */,
+		); path = 'Logs'; sourceTree = "<group>"; };
+		00000000000000000000012c /* App */ = {isa = PBXGroup; children = (
+			000000000000000000000003 /* AppEnvironment.swift */,
+			000000000000000000000005 /* SettingsStore.swift */,
+			000000000000000000000007 /* StreamLibrary.swift */,
+			000000000000000000000009 /* PlaybackHistoryItem.swift */,
+			00000000000000000000000b /* QoSLogEntry.swift */,
+		); path = 'App'; sourceTree = "<group>"; };
+		00000000000000000000012d /* Features */ = {isa = PBXGroup; children = (
+			00000000000000000000012e /* Library */,
+			00000000000000000000012f /* Player */,
+			000000000000000000000130 /* Settings */,
+			000000000000000000000131 /* Logs */,
+		); path = 'Features'; sourceTree = "<group>"; };
+		000000000000000000000132 /* Infrastructure */ = {isa = PBXGroup; children = (
+			00000000000000000000001d /* QoSObservers.swift */,
+			00000000000000000000001f /* AudioSessionManager.swift */,
+			000000000000000000000021 /* NetworkMonitor.swift */,
+			000000000000000000000023 /* PiPCoordinator.swift */,
+			000000000000000000000025 /* LifecycleHandler.swift */,
+			000000000000000000000027 /* QoSLogExporter.swift */,
+		); path = 'Infrastructure'; sourceTree = "<group>"; };
 		00000000000000000000006f /* ABRPlayerDemo */ = {isa = PBXGroup; children = (
 			000000000000000000000001 /* ABRPlayerDemoApp.swift */,
-			000000000000000000000003 /* ContentView.swift */,
-			000000000000000000000070 /* ABR */,
-			000000000000000000000071 /* Models */,
-			000000000000000000000072 /* Views */,
+			00000000000000000000012c /* App */,
+			00000000000000000000012d /* Features */,
+			000000000000000000000132 /* Infrastructure */,
 			000000000000000000000073 /* Assets.xcassets */,
 			000000000000000000000074 /* Info.plist */,
 		); path = "ABRPlayerDemo"; sourceTree = "<group>"; };
@@ -87,12 +117,17 @@
 /* Begin PBXNativeTarget section */
 		000000000000000000000067 /* ABRPlayerDemo */ = {isa = PBXNativeTarget; buildConfigurationList = 00000000000000000000006d /* Build configuration list for PBXNativeTarget */; buildPhases = (
 			00000000000000000000006a /* Sources */,
+			0000000000000000000000c8 /* Frameworks */,
 			000000000000000000000069 /* Resources */,
-		); buildRules = ( ); dependencies = ( ); name = "ABRPlayerDemo"; productName = "ABRPlayerDemo"; productReference = 000000000000000000000078 /* ABRPlayerDemo.app */; productType = "com.apple.product-type.application"; };
+		); buildRules = ( ); dependencies = ( ); name = "ABRPlayerDemo"; packageProductDependencies = (
+			000000000000000000000083 /* ABREngine */,
+		); productName = "ABRPlayerDemo"; productReference = 000000000000000000000078 /* ABRPlayerDemo.app */; productType = "com.apple.product-type.application"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		000000000000000000000068 /* Project object */ = {isa = PBXProject; attributes = {LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; }; buildConfigurationList = 00000000000000000000006c /* Build configuration list for PBXProject */; compatibilityVersion = "Xcode 14.0"; developmentRegion = "en"; hasScannedForEncodings = 0; knownRegions = ("en", "Base", ); mainGroup = 00000000000000000000006e /* */; packageReferences = ( ); productRefGroup = 00000000000000000000006e /* */; projectDirPath = ""; projectRoot = ""; targets = (
+		000000000000000000000068 /* Project object */ = {isa = PBXProject; attributes = {LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; }; buildConfigurationList = 00000000000000000000006c /* Build configuration list for PBXProject */; compatibilityVersion = "Xcode 14.0"; developmentRegion = "en"; hasScannedForEncodings = 0; knownRegions = ("en", "Base", ); mainGroup = 00000000000000000000006e /* */; packageReferences = (
+			000000000000000000000082 /* XCLocalSwiftPackageReference ABREngine */,
+		); productRefGroup = 00000000000000000000006e /* */; projectDirPath = ""; projectRoot = ""; targets = (
 			000000000000000000000067 /* ABRPlayerDemo */,
 		); };
 /* End PBXProject section */
@@ -106,28 +141,33 @@
 /* Begin PBXSourcesBuildPhase section */
 		00000000000000000000006a /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
 			000000000000000000000002 /* ABRPlayerDemoApp.swift in Sources */,
-			000000000000000000000004 /* ContentView.swift in Sources */,
-			000000000000000000000006 /* ABRPlayerController.swift in Sources */,
-			000000000000000000000008 /* ABRController.swift in Sources */,
-			00000000000000000000000a /* BBAController.swift in Sources */,
-			00000000000000000000000c /* HLSVariantParser.swift in Sources */,
-			00000000000000000000000e /* MPCController.swift in Sources */,
-			000000000000000000000010 /* QoSObservers.swift in Sources */,
-			000000000000000000000012 /* ThroughputEstimator.swift in Sources */,
-			000000000000000000000014 /* HLSVariant.swift in Sources */,
-			000000000000000000000016 /* QoSMetrics.swift in Sources */,
-			000000000000000000000018 /* SwitchLog.swift in Sources */,
-			00000000000000000000001a /* PlayerView.swift in Sources */,
-			00000000000000000000001c /* QoSDashboard.swift in Sources */,
-			00000000000000000000001e /* SwitchLogView.swift in Sources */,
+			000000000000000000000004 /* AppEnvironment.swift in Sources */,
+			000000000000000000000006 /* SettingsStore.swift in Sources */,
+			000000000000000000000008 /* StreamLibrary.swift in Sources */,
+			00000000000000000000000a /* PlaybackHistoryItem.swift in Sources */,
+			00000000000000000000000c /* QoSLogEntry.swift in Sources */,
+			00000000000000000000000e /* LibraryView.swift in Sources */,
+			000000000000000000000010 /* PlayerScreen.swift in Sources */,
+			000000000000000000000012 /* PlayerViewModel.swift in Sources */,
+			000000000000000000000014 /* PlayerControlsBar.swift in Sources */,
+			000000000000000000000016 /* PlayerView.swift in Sources */,
+			000000000000000000000018 /* QoSDebugSheet.swift in Sources */,
+			00000000000000000000001a /* SettingsView.swift in Sources */,
+			00000000000000000000001c /* SwitchLogView.swift in Sources */,
+			00000000000000000000001e /* QoSObservers.swift in Sources */,
+			000000000000000000000020 /* AudioSessionManager.swift in Sources */,
+			000000000000000000000022 /* NetworkMonitor.swift in Sources */,
+			000000000000000000000024 /* PiPCoordinator.swift in Sources */,
+			000000000000000000000026 /* LifecycleHandler.swift in Sources */,
+			000000000000000000000028 /* QoSLogExporter.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		000000000000000000000076 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.9; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
-		000000000000000000000079 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.9; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
-		000000000000000000000077 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.9; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Debug; };
-		00000000000000000000007a /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 16.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.9; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
+		000000000000000000000076 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Debug; };
+		000000000000000000000079 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Release; };
+		000000000000000000000077 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Debug; };
+		00000000000000000000007a /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = ABRPlayerDemo/Info.plist; CODE_SIGNING_ALLOWED = NO; IPHONEOS_DEPLOYMENT_TARGET = 17.0; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = com.abrplayer.demo; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";}; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -140,6 +180,14 @@
 			00000000000000000000007a /* Release */,
 		); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		000000000000000000000082 /* XCLocalSwiftPackageReference ABREngine */ = {isa = XCLocalSwiftPackageReference; relativePath = "../Packages/ABREngine"; };
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		000000000000000000000083 /* ABREngine */ = {isa = XCSwiftPackageProductDependency; package = 000000000000000000000082 /* XCLocalSwiftPackageReference ABREngine */; productName = ABREngine; };
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 000000000000000000000068 /* Project object */;
 }

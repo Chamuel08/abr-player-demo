@@ -2,7 +2,8 @@
 //  PlayerView.swift
 //  ABRPlayerDemo
 //
-//  SPDD-generated: SwiftUI 的 AVPlayerLayer 包装（UIViewRepresentable）
+//  SwiftUI 的 AVPlayerLayer 包装（UIViewRepresentable）。
+//  暴露 AVPlayerLayer 引用给 PiPCoordinator 使用。
 //
 
 import AVFoundation
@@ -12,17 +13,23 @@ import UIKit
 /// 用 UIViewRepresentable 把 AVPlayerLayer 包装到 SwiftUI
 struct PlayerView: UIViewRepresentable {
     let player: AVPlayer
+    /// 暴露 layer 引用，供 PiPCoordinator 绑定
+    var playerLayerRef: ((AVPlayerLayer) -> Void)?
 
     func makeUIView(context: Context) -> PlayerUIView {
         let view = PlayerUIView()
         view.player = player
         view.backgroundColor = .black
+        DispatchQueue.main.async {
+            playerLayerRef?(view.playerLayer)
+        }
         return view
     }
 
     func updateUIView(_ uiView: PlayerUIView, context: Context) {
         if uiView.player != player {
             uiView.player = player
+            playerLayerRef?(uiView.playerLayer)
         }
     }
 }
@@ -37,14 +44,14 @@ final class PlayerUIView: UIView {
         }
     }
 
-    private var playerLayer: AVPlayerLayer {
-        guard let layer = layer as? AVPlayerLayer else {
-            let l = AVPlayerLayer()
-            l.videoGravity = .resizeAspect
-            self.layer.addSublayer(l)
-            return l
+    var playerLayer: AVPlayerLayer {
+        if let layer = layer as? AVPlayerLayer {
+            return layer
         }
-        return layer
+        let l = AVPlayerLayer()
+        l.videoGravity = .resizeAspect
+        self.layer.addSublayer(l)
+        return l
     }
 
     override class var layerClass: AnyClass {

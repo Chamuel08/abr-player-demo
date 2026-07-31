@@ -1,15 +1,19 @@
 # 项目宪法：iOS ABR Player Demo
 
 > 本文件是项目的不可妥协准则，所有下游阶段（spec/plan/tasks/implement）必须遵守。任何冲突按 CRITICAL 处理。
+>
+> 版本：v2.0（MAJOR：iOS 16+ → 17+，引入 `@Observable` / `SwiftData` / `NavigationStack`；ABREngine 抽成本地 Swift Package；QoS 改为调试 sheet 呈现；新增 XCTest 守"决策逻辑与 Swift 逐行对齐"纪律）
 
 ## 1. 技术栈与版本
 
 - 语言：Swift 5.9+
-- UI 框架：SwiftUI（禁止用 UIKit + Storyboard）
-- 播放器：AVFoundation / AVPlayer（禁止用第三方播放器库如 VLCKit、FFmpeg、GSPlayer）
-- 最低系统：iOS 16+（需要 `AVURLAsset.load(.variants)` 异步 API，iOS 15+ 可用）
-- 构建工具：Xcode 15+ / Swift Package Manager（如需依赖）
-- 禁止引入任何第三方依赖，纯原生实现
+- UI 框架：SwiftUI（禁止用 UIKit + Storyboard）；状态管理用 `@Observable`（iOS 17+），不再用 `ObservableObject` + `@Published`
+- 持久化：SwiftData（iOS 17+），用于播放历史与 QoS 采样日志
+- 播放器：AVFoundation / AVKit / AVPlayer（禁止用第三方播放器库如 VLCKit、FFmpeg、GSPlayer）
+- 最低系统：iOS 17+（需要 `@Observable` / `SwiftData` / `NavigationStack` 现代 API）
+- 构建工具：Xcode 15+ / Swift Package Manager
+- 禁止引入任何第三方依赖，纯原生实现（SwiftData / `os.Logger` / `AVKit` / `NWPathMonitor` 均为 first-party，不违反此条）
+- ABR 算法核心抽成本地 Swift Package `Packages/ABREngine/`，app target 依赖它；算法必须可在不启动 app 的情况下被 XCTest 验证
 
 ## 2. 延迟预算（硬红线）
 
@@ -40,12 +44,15 @@
 | 卡顿次数 | `timeControlStatus == .waitingToPlay` 且 `reasonForWaitingToPlay == .toMinimizeStalls` 的次数 | `xx 次` |
 | 当前档位 | BBA 选择的 variant 的 peakBitRate | `xxx kbps (档位 x/N)` |
 
+**呈现方式**：7 项指标必须在 Player 内以可切换的调试 sheet（`QoSDebugSheet`）呈现，不要求常驻主屏。指标本身仍按 0.5s 周期实时更新，只是默认不可见、由用户主动打开。这样既保留 constitution §4 的"实时显示"要求，又符合真实 app 把 QoS 面板藏在调试入口后的惯例。
+
 ## 5. 测试纪律
 
 - 必须在 Apple BipBop 多码率测试流上跑通
 - 必须用 Network Link Conditioner 验证弱网降档行为（3G profile）
 - 禁止用合成数据或 mock 流，必须用真实 HLS 流
 - 验收标准：弱网下 buffer 下降→BBA 降档→buffer 恢复→BBA 升档，整个循环可观察
+- **ABREngine 必须有 XCTest 守"决策逻辑与 Swift 逐行对齐"纪律**：`Tests/ABREngineTests/` 内用固定合成 trace 喂 `BBAController.decide` / `MPCController.decide`，断言决策序列与 `scripts/simulate_abr.py` 的 `BBAPolicy` / `MPCPolicy` 输出逐拍一致。改 `simulate_abr.py` 的策略逻辑时必须同步重生成期望值，Swift 测试必须能独立于 app 跑通。
 
 ## 6. 代码治理
 
@@ -54,6 +61,7 @@
 - AVPlayerItem 必须在替换源时清理旧的观察者
 - 禁止 force unwrap（`!`），除非确认非 nil（如 `variants.first!` 在 variants 已排序且非空时可用）
 - 所有公开类型必须有文档注释（`///`）
+- ABR 算法参数（reservoir/cushion/hysteresis/代价权重）不得硬编码在控制器内，必须由 `ABRConfig` struct 注入，便于 Settings 调整与离线搜参结果写回
 
 ## 7. SPDD 流程纪律
 

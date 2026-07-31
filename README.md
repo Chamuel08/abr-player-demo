@@ -1,16 +1,21 @@
 # iOS ABR Player Demo（SPDD 方法论实践）
 
-> 通过 SPDD 方法论（constitution → spec → plan → tasks → implement）开发的一个最小可运行 iOS HLS 播放器 demo，核心功能是**自定义 BBA（Buffer-Based Approach）ABR 算法 + 实时 QoS 监控面板**。
+> 通过 SPDD 方法论（constitution → spec → plan → tasks → implement）开发的一个 iOS HLS 播放器，核心是**自定义 BBA / MPC ABR 算法 + 端侧 QoS 监控**，并把 ABR 算法核心抽成本地 Swift Package，用 XCTest 守"决策逻辑与 Python 仿真器逐拍对齐"。
+>
+> v2.0：客户端化重构。iOS 17+ / `@Observable` / `SwiftData` / `NavigationStack`；ABREngine 抽成本地 Swift Package；QoS 改为调试 sheet；新增音频会话/PiP/AirPlay/生命周期/网络监控/错误 UI/CSV 导出/XCTest。
 
 ## 项目背景
 
-这是一个用来实践 SPDD（Spec-Driven Development）方法论和端侧 ABR 算法的练手项目。目标是用"先定义 spec、再用 AI 按 spec 生成代码"的方式，在不熟悉的技术栈（iOS / Swift）上快速交付一个可运行的播放器，并验证自定义 BBA 算法和 QoS 监控的端侧落地。
+这是一个用来实践 SPDD（Spec-Driven Development）方法论和端侧 ABR 算法的练手项目。目标是用"先定义 spec、再用 AI 按 spec 生成代码"的方式，在不熟悉的技术栈（iOS / Swift）上快速交付一个可运行的播放器，并验证自定义 BBA / MPC 算法和 QoS 监控的端侧落地。
 
-**demo 的三个目标**：
+v2.0 把它从"单屏算法 demo"重构成**真实 iOS 客户端项目**：app 有内容库 / 播放器 / 设置三个 Tab，ABR 引擎从"主角"变成"播放器里一个可替换的模块"，算法核心抽成本地 Swift Package 可被独立 XCTest 验证。
+
+**项目的四个目标**：
 
 1. **实践 SPDD 方法论** —— constitution / spec / plan / tasks 文档本身就是交付物
-2. **实现 ABR 算法** —— BBA 实现，不是调 AVPlayer 默认
-3. **落地 QoS 监控** —— 首帧耗时、buffer 水位、切档次数、卡顿率
+2. **实现 ABR 算法** —— BBA + MPC，不是调 AVPlayer 默认
+3. **落地 QoS 监控** —— 首帧耗时、buffer 水位、切档次数、卡顿率，作为调试 sheet
+4. **像真实客户端** —— iOS 17+ 现代写法、本地 Swift Package 模块化、XCTest 守对齐
 
 ## SPDD 流程说明
 
@@ -97,7 +102,7 @@ BBA（Buffer-Based Approach）是 SIGCOM 经典论文算法，本 demo 在 AVPla
 
 ## QoS 指标说明
 
-面板实时显示 7 项指标，覆盖端侧 QoS 体系的关键维度：
+调试 sheet（点播放器控制条上的 QoS 图标打开）实时显示以下指标，覆盖端侧 QoS 体系的关键维度：
 
 | 指标 | 数据来源 | 含义 |
 |---|---|---|
@@ -147,42 +152,103 @@ BBA（Buffer-Based Approach）是 SIGCOM 经典论文算法，本 demo 在 AVPla
 ```
 abr-player-demo/
 ├── .specify/memory/
-│   └── constitution.md          # SPDD 宪法
+│   └── constitution.md          # SPDD 宪法（v2.0：iOS 17+ MAJOR）
 ├── specs/abr-player-demo/
-│   ├── spec.md                  # 需求文档
+│   ├── spec.md                  # 需求文档（v2.0：FR-6~FR-12 客户端化）
 │   ├── spec-mpc.md              # MPC 增量 spec
 │   ├── spec-calibration.md      # 离线参数校准增量 spec
-│   ├── plan.md                  # 技术方案
-│   ├── roadmap.md               # 技术演进路线
-│   └── tasks.md                 # 任务拆解
-├── scripts/                     # 离线参数校准（Python，无第三方依赖）
+│   ├── plan.md                  # 技术方案（v2.0：三层架构）
+│   ├── roadmap.md               # 技术演进路线（含阶段四客户端化）
+│   └── tasks.md                 # 任务拆解（含阶段四 T5.1~T5.17）
+├── scripts/                     # 离线参数校准 + 对齐测试期望值生成（Python）
 │   ├── download_traces.sh       # 拉取公开吞吐 trace
 │   ├── simulate_abr.py          # ABR 仿真器（BBA / MPC）
-│   └── grid_search.py           # 参数网格搜索 + Pareto 前沿
-├── ABRPlayerDemo/               # Xcode 项目
-│   ├── ABRPlayerDemo.xcodeproj
+│   ├── grid_search.py           # 参数网格搜索 + Pareto 前沿
+│   ├── dump_parity_trace.py     # 导出固定 trace 上的决策序列
+│   └── emit_parity_swift.py     # 生成 XCTest 期望值（ParityFixtures.swift）
+├── Packages/ABREngine/          # 本地 Swift Package（ABR 算法核心）
+│   ├── Package.swift            # iOS 17+，library + test target
+│   ├── Sources/ABREngine/
+│   │   ├── Models/               # HLSVariant / QoSMetrics / SwitchLog / ABRConfig
+│   │   ├── Policies/             # ABRController / BBAController / MPCController / ThroughputEstimator
+│   │   ├── Parser/               # HLSVariantParser
+│   │   └── Logging/             # ABRLogger（os.Logger）
+│   └── Tests/ABREngineTests/     # BBA/MPC parity 测试（守对齐）
+│       ├── ParityFixtures.swift  # 由 emit_parity_swift.py 生成
+│       ├── BBAPolicyParityTests.swift
+│       ├── MPCPolicyParityTests.swift
+│       └── ThroughputEstimatorTests.swift
+├── ABRPlayerDemo/               # Xcode 项目（app target）
+│   ├── ABRPlayerDemo.xcodeproj   # 由 gen_pbxproj.py 生成
 │   └── ABRPlayerDemo/
-│       ├── ABRPlayerDemoApp.swift       # App 入口
-│       ├── ContentView.swift           # 主 UI
-│       ├── ABR/
-│       │   ├── ABRPlayerController.swift  # AVPlayer 封装 + 策略切换
-│       │   ├── ABRController.swift        # ABR 策略协议
-│       │   ├── BBAController.swift        # BBA 算法核心
-│       │   ├── MPCController.swift        # MPC 滚动时域优化
-│       │   ├── ThroughputEstimator.swift  # EWMA 吞吐预测
-│       │   ├── HLSVariantParser.swift     # 码率档位解析
-│       │   └── QoSObservers.swift         # QoS 指标观察器
-│       ├── Models/
-│       │   ├── HLSVariant.swift
-│       │   ├── QoSMetrics.swift
-│       │   └── SwitchLog.swift
-│       └── Views/
-│           ├── PlayerView.swift          # AVPlayerLayer 包装
-│           ├── QoSDashboard.swift        # QoS 实时面板
-│           └── SwitchLogView.swift        # 切档日志
+│       ├── ABRPlayerDemoApp.swift       # @main，TabView(Library/Settings)
+│       ├── App/                          # 依赖容器 + 持久化模型
+│       │   ├── AppEnvironment.swift      # @Observable 依赖容器
+│       │   ├── SettingsStore.swift       # @Observable + UserDefaults
+│       │   ├── StreamLibrary.swift       # 内置流 + recents
+│       │   ├── PlaybackHistoryItem.swift # SwiftData 模型
+│       │   └── QoSLogEntry.swift         # SwiftData 模型
+│       ├── Features/
+│       │   ├── Library/LibraryView.swift         # NavigationStack + List
+│       │   ├── Player/
+│       │   │   ├── PlayerScreen.swift             # 播放器主屏 + 错误 overlay
+│       │   │   ├── PlayerViewModel.swift          # @Observable，拆自旧 god object
+│       │   │   ├── PlayerControlsBar.swift        # play/pause/scrubber/PiP/AirPlay/策略
+│       │   │   ├── PlayerView.swift               # AVPlayerLayer 包装（PiP 兼容）
+│       │   │   └── QoSDebugSheet.swift             # QoS 调试 sheet
+│       │   ├── Settings/SettingsView.swift        # 参数 sliders + CSV 导出
+│       │   └── Logs/SwitchLogView.swift           # 切档日志（sheet 内组件）
+│       ├── Infrastructure/
+│       │   ├── QoSObservers.swift                 # KVO + NotificationCenter
+│       │   ├── AudioSessionManager.swift          # 中断/路由
+│       │   ├── NetworkMonitor.swift               # NWPathMonitor
+│       │   ├── PiPCoordinator.swift               # AVPictureInPictureController
+│       │   ├── LifecycleHandler.swift             # scenePhase
+│       │   └── QoSLogExporter.swift               # SwiftData → CSV
+│       └── Info.plist                             # UIBackgroundModes=audio
+├── gen_pbxproj.py                # 生成 project.pbxproj（含本地包引用）
 ├── docs/                        # demo 截图
 └── README.md
 ```
+
+## 架构总览（v2.0）
+
+三层结构：app target（UI + 基础设施）→ 本地 Swift Package `ABREngine`（算法核心）→ XCTest（守对齐）。
+
+```mermaid
+flowchart TB
+    subgraph app[ABRPlayerDemo app target]
+        App[ABRPlayerDemoApp @main]
+        Env[AppEnvironment @Observable]
+        subgraph features[Features]
+            Library[LibraryView]
+            Player[PlayerScreen + ViewModel + ControlsBar]
+            Settings[SettingsView]
+            Logs[QoSDebugSheet + SwitchLogView]
+        end
+        subgraph infra[Infrastructure]
+            Audio[AudioSessionManager]
+            Net[NWPathMonitor]
+            PiP[PiPCoordinator]
+            Life[LifecycleHandler]
+            Export[QoSLogExporter]
+        end
+        Persist[SwiftData: PlaybackHistory, QoSLogEntry]
+    end
+    subgraph pkg[ABREngine local Swift Package]
+        Policies[BBAController MPCController ThroughputEstimator]
+        Tests[XCTest BBA MPC parity vs Python]
+    end
+    App --> Env
+    Env --> Library & Player & Settings
+    Player --> Policies
+    Player --> Persist & Audio & PiP & Net & Export
+    app --> pkg
+```
+
+**为什么把 ABREngine 抽成本地 Swift Package**：算法可在不启动 app 的情况下被 XCTest 验证——把 constitution §5 的"决策逻辑与 Swift 逐行对齐"从口头纪律变成可执行断言。`ABRConfig` 注入让 Settings 调参与离线搜参结果写回有统一入口。
+
+**为什么 QoS 改为调试 sheet**：真实 app 都把 QoS 面板藏在调试入口后；常驻主屏是 demo 习惯。指标仍按 0.5s 实时更新，只是默认不可见（constitution §4 要求"实时显示"但不要求"常驻主屏"）。
 
 ## 开发方式说明
 
@@ -196,16 +262,18 @@ abr-player-demo/
 
 ## 运行步骤
 
-1. 打开 `ABRPlayerDemo/ABRPlayerDemo.xcodeproj`
-2. 选择 iOS 16+ 模拟器或真机
+1. 打开 `ABRPlayerDemo/ABRPlayerDemo.xcodeproj`（工程文件由 `gen_pbxproj.py` 生成，已包含本地 ABREngine 包引用）
+2. 选择 iOS 17+ 模拟器或真机
 3. `Cmd+R` 运行
-4. app 自动播放 Apple BipBop 多码率测试流
-5. 观察 QoS 面板：正常网络下 buffer 逐渐升高，BBA 从最低档升到最高档
-6. 打开"模拟弱网"开关：buffer 下降，BBA 降档；关闭后 buffer 恢复，BBA 升档
+4. app 启动后进入**内容库** Tab，选择一个测试流（BipBop / Mux / Tubi 等），tap 进入播放器
+5. 播放器自动起播；点控制条上的 QoS 图标打开**调试 sheet**，观察 buffer 升高、BBA/MPC 升降档
+6. 切到**设置** Tab 调参（reservoir/cushion/hysteresis/代价权重），回到播放器即可看到 ABR 行为变化
+7. 打开"模拟弱网"开关：buffer 下降，ABR 降档；或开"蜂窝自动弱网"，切到蜂窝网络自动弱网
+8. 在设置里点"导出 QoS 日志 (CSV)"，把采样数据分享出去（可用于校准仿真器与真机偏差）
 
-**弱网测试**：也可用 Xcode → Open Developer Tool → Network Link Conditioner 选择 3G profile，观察 BBA 降档行为。
+**测试**：`swift test --package-path Packages/ABREngine` 运行 BBA/MPC parity 测试，验证决策逻辑与 Python 仿真器逐拍一致。
 
-**自动化弱网验证**：通过环境变量 `ABR_WEAK_NETWORK=1` 启动可默认开启弱网模式（用 `SIMCTL_CHILD_ABR_WEAK_NETWORK=1 xcrun simctl launch <udid> <bundleid>` 在模拟器上注入）。
+**弱网测试**：也可用 Xcode → Open Developer Tool → Network Link Conditioner 选择 3G profile，观察 ABR 降档行为。PiP / 后台音频需真机验收（模拟器不可验证）。
 
 ## 测试流
 
@@ -355,6 +423,16 @@ python3 scripts/grid_search.py --strategy bba --trace-scale 0.3
 
 ## 技术栈
 
-- Swift 5.9+ / SwiftUI / AVFoundation
-- iOS 16+（需要 `AVURLAsset.load(.variants)` 异步 API）
+- Swift 5.9+ / SwiftUI / AVFoundation / AVKit
+- iOS 17+（`@Observable` / `SwiftData` / `NavigationStack`）
+- 本地 Swift Package `ABREngine`（算法核心，可独立 XCTest）
+- XCTest 守"决策逻辑与 Python 仿真器逐拍对齐"
 - 纯原生实现，无任何第三方依赖
+
+## 测试纪律（constitution §5）
+
+ABREngine 的 `ABREngineTests` 用固定合成 trace 断言 `BBAController.decide` / `MPCController.decide` 的决策序列与 `scripts/simulate_abr.py` 的 `BBAPolicy` / `MPCPolicy` 逐拍一致。期望值由 `scripts/emit_parity_swift.py` 从 Python 仿真器导出，写入 `ParityFixtures.swift`。
+
+**改 `simulate_abr.py` 策略逻辑后必须重生成 `ParityFixtures.swift`**：`python3 scripts/emit_parity_swift.py > Packages/ABREngine/Tests/ABREngineTests/ParityFixtures.swift`。
+
+这套对齐测试在 v2.0 已经抓到一个真实缺陷：Python `MPCPolicy.decide` 把 `_should_recompute` 放在安全兜底之后，导致 `buffer < reservoir` 时的早退跳过 `last_rollout_time` 更新，rollout 时刻漂移（1.0, 5.0, 9.0, 13.5... 而非 0, 4, 8, 12...）。按 constitution"两边不一致时以 Swift 为准，改仿真器"修正了 Python。这正是把"逐行对齐"从口头纪律变成可执行断言的价值。

@@ -1,8 +1,8 @@
 # Roadmap：iOS ABR Player Demo 技术演进路线
 
-> 状态：阶段一、二已完成；阶段三（离线参数校准）进行中
+> 状态：阶段一、二已完成；阶段三（离线参数校准）进行中；阶段四（客户端化重构）进行中
 >
-> 本文件描述 `abr-player-demo` 从当前 BBA 基线到 BBA + 吞吐预测、再到 BBA + MPC 闭环的持续迭代路径。
+> 本文件描述 `abr-player-demo` 从当前 BBA 基线到 BBA + 吞吐预测、再到 BBA + MPC 闭环、再到真实 iOS 客户端化的持续迭代路径。
 
 ## 当前阶段：MVP + BBA（已完成）
 
@@ -133,11 +133,34 @@ u*(t) = argmin_{u ∈ U} J(u) over horizon H
 - 把候选参数在真机上过 Network Link Conditioner 验收，再写回 Swift
 - QoS 日志落 CSV（真机侧），用于校准仿真器与真实 AVPlayer 的偏差
 
+## 阶段四：客户端化重构（进行中，见 [plan.md](plan.md) v2.0）
+
+目标：把"单屏算法 demo"重构成真实 iOS 客户端项目，让 ABR 引擎从"主角"变成"播放器里一个可替换的模块"。
+
+### 客户端化要点
+
+- **iOS 17+ 现代写法**：`@Observable` / `SwiftData` / `NavigationStack`，替代 `ObservableObject` + `@Published`
+- **ABREngine 抽成本地 Swift Package**：算法核心移入 `Packages/ABREngine/`，可独立被 XCTest 验证——把"决策逻辑与 Swift 逐行对齐"从口头纪律变成可执行断言
+- **app 骨架**：NavigationStack + TabView，Library（流列表 + recents）/ Player / Settings 三层
+- **深层 iOS 能力**：PiP（`AVPictureInPictureController`）、AirPlay（`AVRoutePickerView`）、音频会话（中断/路由）、scenePhase 生命周期、`NWPathMonitor` 网络监控、错误 UI
+- **持久化**：SwiftData 存播放历史与 QoS 采样日志；Settings 用 `@AppStorage`
+- **QoS 改为调试 sheet**：constitution §4 要求实时显示但不要求常驻主屏，移到 Player 内可切换 sheet
+- **OSLog + CSV 导出**：`os.Logger` 替代 `print()`，QoS 采样可导出 CSV（ShareLink），用于校准仿真器与真机偏差
+- **XCTest 守对齐**：`ABREngineTests` 用固定合成 trace 断言 BBA/MPC 决策序列与 `simulate_abr.py` 逐拍一致
+
+### 阶段四验收
+
+- app 从 Library 选流 → push 到 PlayerScreen 播放，PiP/AirPlay/scrubber 可用
+- Settings 改参数 → ABR 行为实时变化
+- 退出 app 再进，Library 最近播放与 Settings 参数保留
+- 后台时音频继续（PiP 激活）或暂停（未激活），中断来电后能恢复
+- `xcodebuild test -scheme ABREngine` 通过：BBA/MPC 在固定 trace 上与 Python 输出逐拍一致
+
 ## 数据收集
 
 为支持 MPC 和参数校准，QoS 面板需要增加持久化：
 
-- 在真机测试时，把每 0.5s 的 `(timestamp, buffer, current_bitrate, observed_bitrate, target_bitrate, switch_count, stall_count)` 写入本地 CSV
+- 在真机测试时，把每 0.5s 的 `(timestamp, buffer, current_bitrate, observed_bitrate, target_bitrate, switch_count, stall_count)` 写入本地 CSV（阶段四的 `QoSLogExporter`）
 - 提供 `scripts/analyze_qos_logs.py` 做回放与可视化
 - 这些日志是 MPC 训练/校准的数据来源
 
@@ -148,6 +171,7 @@ u*(t) = argmin_{u ∈ U} J(u) over horizon H
 | 阶段一 | 吞吐预测的 EWMA 平滑后，弱网场景卡顿次数 ≤ BBA 基线 |
 | 阶段二 | MPC 在正常网络下画质档位 ≥ BBA 基线，且卡顿次数 ≤ BBA 基线 |
 | 阶段三 | 能自动搜索出一组 Pareto 最优参数，并更新到代码中 |
+| 阶段四 | 客户端化验收（见上）+ `xcodebuild test -scheme ABREngine` 通过 |
 
 ## 相关文档
 

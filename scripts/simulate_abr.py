@@ -254,6 +254,13 @@ class MPCPolicy:
                 )
 
         min_br, max_br = self.ladder[0], self.ladder[-1]
+
+        # segment 边界判定必须在安全兜底之前——与 Swift MPCController.controlLoop 对齐：
+        # controlLoop 无条件调 shouldRecomputeRollout（更新 lastRolloutTime），再调 decide。
+        # 若把判定放在安全兜底之后，buffer<reservoir 时的早退会跳过 last_rollout_time 更新，
+        # 导致 rollout 时刻漂移（1.0, 5.0, 9.0, 13.5... 而非 0, 4, 8, 12...）。
+        due = self._should_recompute(now)
+
         # 安全兜底（与 BBA 一致，不可妥协）。每个控制周期都查，不等 segment 边界。
         if weak_network:
             return min_br
@@ -263,7 +270,6 @@ class MPCPolicy:
             return min_br
 
         # 未到 segment 边界：维持当前档位，不重算 rollout
-        due = self._should_recompute(now)
         if not due and self.current_target is not None:
             return self.current_target
 

@@ -196,3 +196,111 @@
 - [ ] 收益看着过好（码率 4.6 倍而卡顿仅降 0.4s），需真机确认是否为仿真未建模的响应延迟所致
 - [ ] 通过 T4.4 验收后才写回 `MPCController.swift`
 - **验证**：真机 QoS 与仿真预测偏差在可解释范围内
+
+## 阶段四：客户端化重构（对应 constitution v2.0）
+
+> 把"单屏算法 demo"重构成真实 iOS 客户端项目。iOS 17+ / `@Observable` / `SwiftData` / `NavigationStack`；ABREngine 抽成本地 Swift Package；QoS 改调试 sheet；新增音频会话/PiP/AirPlay/生命周期/网络监控/错误 UI/CSV 导出/XCTest。
+
+### T5.1 文档先行
+- [x] constitution v2.0：iOS 16+ → 17+（MAJOR），§4 注明 QoS 改调试 sheet，§5 加 XCTest 守对齐，§6 加 ABRConfig 注入
+- [x] spec.md：加 FR-6~FR-12（Library/Settings/持久化/音频会话/网络监控/错误 UI/日志）、NFR-4（测试）、AC-5/AC-6
+- [x] plan.md：架构图换三层 mermaid，模块设计改 Features/Infrastructure/Package
+- [x] tasks.md：加阶段四任务
+- [x] roadmap.md：标注阶段四
+- **验证**：四份文档自洽，无与 constitution 冲突处
+
+### T5.2 ABREngine Swift Package
+- [ ] 建 `Packages/ABREngine/Package.swift`（iOS 17+，library `ABREngine`，test target `ABREngineTests`）
+- [ ] 移入 `Sources/ABREngine/Models/`：`HLSVariant.swift`、`QoSMetrics.swift`、`SwitchLog.swift`
+- [ ] 新增 `Sources/ABREngine/Models/ABRConfig.swift`：参数 struct
+- [ ] 移入 `Sources/ABREngine/Policies/`：`ABRController.swift`、`BBAController.swift`、`MPCController.swift`、`ThroughputEstimator.swift`，改造为接收 `ABRConfig`
+- [ ] 移入 `Sources/ABREngine/Parser/HLSVariantParser.swift`
+- [ ] 新增 `Sources/ABREngine/Logging/ABRLogger.swift`：`os.Logger` 封装
+- [ ] 所有公开类型加 `public` 修饰符 + 文档注释
+- **验证**：`swift build` 包独立编译通过
+
+### T5.3 ABREngineTests 对齐测试
+- [ ] 在 `Tests/ABREngineTests/` 写 `BBAPolicyParityTests.swift`：用固定合成 trace 喂 `BBAController.decide`，断言决策序列与 `simulate_abr.py` 的 `BBAPolicy` 输出逐拍一致
+- [ ] 写 `MPCPolicyParityTests.swift`：同上对 MPC
+- [ ] 写 `ThroughputEstimatorTests.swift`：EWMA 收敛行为
+- [ ] 期望值从 Python 仿真器跑出来填入测试
+- **验证**：`swift test` 通过
+
+### T5.4 gen_pbxproj.py 扩展
+- [ ] `sources` 列表换成新 app 文件清单（删旧 ABR/Models/Views，加新 App/Features/Infrastructure）
+- [ ] 新增 `XCLocalSwiftPackageReference`（path `../Packages/ABREngine`）和 `XCSwiftPackageProductDependency`（product `ABREngine`）段
+- [ ] `PBXProject.packageReferences` 加本地包引用
+- [ ] `PBXNativeTarget.packageProductDependencies` 加 `ABREngine`
+- [ ] 重新生成 `project.pbxproj`
+- **验证**：Xcode 打开工程，app target 能链接 `ABREngine`，能 build
+
+### T5.5 AppEnvironment + SettingsStore + StreamLibrary
+- [ ] `App/AppEnvironment.swift`：`@Observable` 依赖容器
+- [ ] `App/SettingsStore.swift`：`@AppStorage` 包装所有标量
+- [ ] `App/StreamLibrary.swift`：内置流列表（BipBop 4x3/16x9、Apple Advanced HLS、Mux x36xhzz、Tubi）+ recents
+- **验证**：app 启动不崩，Environment 可注入
+
+### T5.6 Library + NavigationStack/TabView
+- [ ] `Features/Library/LibraryView.swift` + `LibraryViewModel.swift` + `StreamRow.swift`
+- [ ] `NavigationStack` + `List`，tap 推到 PlayerScreen
+- [ ] TabView：Library / Settings
+- **验证**：库列表显示，tap 能跳转
+
+### T5.7 PlayerScreen + PlayerViewModel
+- [ ] `Features/Player/PlayerScreen.swift`：替代旧 ContentView
+- [ ] `Features/Player/PlayerViewModel.swift`：`@Observable`，拆旧 `ABRPlayerController`，播放 + ABR + QoS 采样写 SwiftData
+- [ ] 接入 `ABREngine` 的 `ABRController`，参数从 `SettingsStore` 注入
+- **验证**：能播放，ABR 接管，切档可观察
+
+### T5.8 PlayerControlsBar + PlayerView(PiP 兼容)
+- [ ] `Features/Player/PlayerControlsBar.swift`：play/pause、scrubber + 时间标签、PiP 按钮、AirPlay、策略 picker
+- [ ] `Features/Player/PlayerView.swift`：保留 `UIViewRepresentable`，暴露 `AVPlayerLayer` 引用
+- **验证**：控制条可用，scrubber 能拖
+
+### T5.9 QoSDebugSheet
+- [ ] `Features/Player/QoSDebugSheet.swift`：移自 `Views/QoSDashboard.swift`，作为 sheet 呈现
+- [ ] `Features/Logs/SwitchLogView.swift`：移自 `Views/`，sheet 内组件
+- [ ] PlayerScreen 加调试 sheet 入口按钮
+- **验证**：sheet 能弹出，7 项指标 + 切档日志显示
+
+### T5.10 SettingsView
+- [ ] `Features/Settings/SettingsView.swift` + `SettingsViewModel.swift`
+- [ ] 参数 sliders（reservoir/cushion/hysteresis/w_stall/w_quality/w_switch）
+- [ ] 策略选择、弱网开关、自动弱网开关、CSV 导出按钮、清空历史
+- **验证**：改参数后 ABR 行为实时变化
+
+### T5.11 SwiftData 持久化
+- [ ] `PlaybackHistoryItem` 模型
+- [ ] `QoSLogEntry` 模型
+- [ ] PlayerViewModel 每 0.5s 写 QoSLogEntry（仅调试模式）
+- [ ] 自动截断到最近 N 条
+- **验证**：app 重启后历史与采样保留
+
+### T5.12 AudioSessionManager + LifecycleHandler
+- [ ] `Infrastructure/AudioSessionManager.swift`：`.playback`，中断/路由通知
+- [ ] `Infrastructure/LifecycleHandler.swift`：scenePhase 后台暂停（PiP 除外）
+- **验证**：中断来电后能恢复，后台行为正确
+
+### T5.13 PiPCoordinator + Info.plist
+- [ ] `Infrastructure/PiPCoordinator.swift`：`AVPictureInPictureController`
+- [ ] `Resources/Info.plist`：`UIBackgroundModes = [audio]`
+- **验证**：真机 PiP 可用（模拟器不可验证）
+
+### T5.14 NetworkMonitor
+- [ ] `Infrastructure/NetworkMonitor.swift`：`NWPathMonitor`
+- [ ] 接入 Settings 自动弱网 + QoS 面板显示网络类型
+- **验证**：WiFi/cellular 切换可观察
+
+### T5.15 QoSLogExporter
+- [ ] `Infrastructure/QoSLogExporter.swift`：SwiftData → CSV → ShareLink
+- **验证**：能导出 CSV 并分享
+
+### T5.16 错误 UI
+- [ ] PlayerScreen 加错误 overlay（`AVPlayerItem.status == .failed` 或网络不可用）
+- [ ] 重试按钮
+- **验证**：断网时显示 overlay，重试可恢复
+
+### T5.17 README/文档更新
+- [ ] README：新项目结构、新运行步骤、架构说明
+- [ ] 标注阶段四完成
+- **验证**：README 与代码一致

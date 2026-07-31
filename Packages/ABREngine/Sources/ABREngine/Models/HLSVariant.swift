@@ -1,32 +1,38 @@
 //
 //  HLSVariant.swift
-//  ABRPlayerDemo
+//  ABREngine
 //
-//  SPDD-generated: HLS variant (码率档位) 数据模型
+//  HLS variant（码率档位）数据模型
 //
 
 import Foundation
 
 /// 表示 HLS master playlist 中的一个码率档位
-struct HLSVariant: Equatable, Identifiable {
-    let id = UUID()
+public struct HLSVariant: Equatable, Identifiable, Sendable {
+    public let id: UUID
     /// 该档位的峰值码率（bps）
-    let peakBitRate: Double
+    public let peakBitRate: Double
     /// 该档位的子 playlist URL
-    let url: URL
+    public let url: URL
+
+    public init(peakBitRate: Double, url: URL) {
+        self.id = UUID()
+        self.peakBitRate = peakBitRate
+        self.url = url
+    }
 
     /// 便于日志显示的 kbps 字符串
-    var kbpsString: String {
+    public var kbpsString: String {
         String(format: "%.0f kbps", peakBitRate / 1000.0)
     }
 }
 
 /// 档位解析错误
-enum HLSVariantParserError: Error, LocalizedError {
+public enum HLSVariantParserError: Error, LocalizedError {
     case noVariants
     case loadFailed(underlying: Error)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .noVariants:
             return "HLS 流没有可用的码率档位"

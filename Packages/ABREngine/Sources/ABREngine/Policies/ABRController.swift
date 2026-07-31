@@ -1,17 +1,17 @@
 //
 //  ABRController.swift
-//  ABRPlayerDemo
+//  ABREngine
 //
-//  SPDD-generated: ABR 策略抽象协议，统一 BBA / MPC 的对外接口
+//  ABR 策略抽象协议，统一 BBA / MPC 的对外接口。
 //
 
 import Foundation
 
 /// ABR 策略控制器协议
 ///
-/// BBA 与 MPC 均遵循此协议，便于 `ABRPlayerController` 在运行时切换策略。
+/// BBA 与 MPC 均遵循此协议，便于 `PlayerViewModel` 在运行时切换策略。
 /// 协议只规定对外接口；控制循环（Timer）、决策算法由实现各自负责。
-protocol ABRController: AnyObject {
+public protocol ABRController: AnyObject {
     /// 当前目标码率（bps），nil 表示尚未决策
     var currentTarget: Double? { get }
     /// 累计切档次数

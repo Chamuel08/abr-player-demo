@@ -8,7 +8,7 @@ xcuserdata/
 # Swift Package Manager
 .swiftpm/
 .build/
-Packages/
+# 注意：不忽略 Packages/ —— ABREngine 本地包源码需要入库
 
 # macOS
 .DS_Store
